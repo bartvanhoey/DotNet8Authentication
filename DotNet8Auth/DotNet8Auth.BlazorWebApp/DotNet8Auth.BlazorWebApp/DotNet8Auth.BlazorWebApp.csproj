@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
+    <ProjectReference Include="..\..\DotNet8Auth.Shared\DotNet8Auth.Shared.csproj" />
     <ProjectReference Include="..\DotNet8Auth.BlazorWebApp.Client\DotNet8Auth.BlazorWebApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
   </ItemGroup>
-
 </Project>
