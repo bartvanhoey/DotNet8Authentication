@@ -1,3 +1,4 @@
+using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
 
 namespace DotNet8Auth.API.Authentication

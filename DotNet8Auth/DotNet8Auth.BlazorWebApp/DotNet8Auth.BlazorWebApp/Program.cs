@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using DotNet8Auth.BlazorWebApp.Authentication;
 using DotNet8Auth.BlazorWebApp.Client.Pages;
 using DotNet8Auth.BlazorWebApp.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,14 +11,18 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddCascadingAuthenticationState();
+// builder.Services.AddScoped<IdentityUserAccessor>();
+// builder.Services.AddScoped<IdentityRedirectManager>();
+builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
-    builder.Services.AddHttpClient("ServerAPI", client => client.BaseAddress = new Uri("https://localhost:7199/"));
-                //.AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
+builder.Services.AddHttpClient("ServerAPI", client => client.BaseAddress = new Uri("https://localhost:7199/"));
+//.AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
-  
 
-    builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();

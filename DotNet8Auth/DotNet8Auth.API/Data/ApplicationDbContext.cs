@@ -1,4 +1,5 @@
 using DotNet8Auth.API.Authentication;
+using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

@@ -4,6 +4,7 @@ using Blazored.LocalStorage;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net.Http.Headers;
 
 namespace DotNet8Auth.BlazorWebApp.Authentication
 {
@@ -41,8 +42,8 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
         Console.WriteLine(loginResult.AccessToken);
 
         await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
-        // ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
-        // _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
+        ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
 
         return loginResult;
     }
