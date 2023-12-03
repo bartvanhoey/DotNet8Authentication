@@ -108,9 +108,13 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             base.Dispose(disposing);
         }
 
-        public void MarkUserAsAuthenticated(string email)
+        public async Task MarkUserAsAuthenticated(string email, string userId)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
+            //new(ClaimTypes.Name, user?.Email ?? throw new ArgumentNullException()),
+            //            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email), 
+                    new(ClaimTypes.NameIdentifier, userId) }, "apiauth"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }

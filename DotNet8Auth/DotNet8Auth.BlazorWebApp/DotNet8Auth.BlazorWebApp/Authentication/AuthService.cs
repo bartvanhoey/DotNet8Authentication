@@ -5,6 +5,8 @@ using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace DotNet8Auth.BlazorWebApp.Authentication
 {
@@ -31,9 +33,17 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
         var loginAsJson = JsonSerializer.Serialize(loginModel);
         var response = await _httpClient.PostAsync("api/auth/login", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
         var jsonContent = await response.Content.ReadAsStringAsync();
-        var loginResult = jsonContent.ConvertJsonTo<LoginResult>(); 
+        var loginResult = jsonContent.ConvertJsonTo<LoginResult>();
 
-        if (!response.IsSuccessStatusCode)
+            
+            
+            
+            var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(loginResult.AccessToken) as JwtSecurityToken;
+
+            var userId = jwtSecurityToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+
+
+            if (!response.IsSuccessStatusCode)
         {
             loginResult.Successful = false;
             return loginResult;
@@ -45,7 +55,7 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
 
 
         await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
-        ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
+        ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email, userId);
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
 
         return loginResult;
