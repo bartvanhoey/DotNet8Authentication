@@ -9,5 +9,6 @@ namespace DotNet8Auth.Shared.Models.Authentication
     {
         public required string AccessToken { get; set; }
         public DateTime ValidTo { get; set; }
+        public bool Successful{ get; set; }
     }
 }

@@ -38,8 +38,11 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             loginResult.Successful = false;
             return loginResult;
         }
-
+    
+        Console.WriteLine();
         Console.WriteLine(loginResult.AccessToken);
+        Console.WriteLine();
+
 
         await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
         ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);

@@ -65,9 +65,9 @@ namespace DotNet8Auth.Controllers
                     signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
                     );
 
-                var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+                var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return Ok(new LoginResult { AccessToken = jwtToken, ValidTo = token.ValidTo });
+                return Ok(new LoginResult { AccessToken = accessToken, ValidTo = token.ValidTo });
             }
             catch (Exception)
             {
