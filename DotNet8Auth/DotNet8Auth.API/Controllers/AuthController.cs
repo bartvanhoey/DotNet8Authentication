@@ -67,7 +67,7 @@ namespace DotNet8Auth.Controllers
 
                 var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return Ok(new LoginResult { AccessToken = accessToken, ValidTo = token.ValidTo });
+                return Ok(new LoginResult { AccessToken = accessToken, ValidTo = token.ValidTo, Successful = true });
             }
             catch (Exception)
             {

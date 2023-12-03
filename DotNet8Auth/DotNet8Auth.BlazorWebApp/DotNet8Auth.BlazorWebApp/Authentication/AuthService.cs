@@ -28,38 +28,39 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             _localStorage = localStorage;
         }
 
-          public async Task<LoginResult> Login(InputModel loginModel)
-    {
-        var loginAsJson = JsonSerializer.Serialize(loginModel);
-        var response = await _httpClient.PostAsync("api/auth/login", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-        var jsonContent = await response.Content.ReadAsStringAsync();
-        var loginResult = jsonContent.ConvertJsonTo<LoginResult>();
+        public async Task<LoginResult> Login(InputModel loginModel)
+        {
+            var loginAsJson = JsonSerializer.Serialize(loginModel);
+            var response = await _httpClient.PostAsync("api/auth/login", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            var loginResult = jsonContent.ConvertJsonTo<LoginResult>();
 
-            
-            
-            
+
+
+
             var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(loginResult.AccessToken) as JwtSecurityToken;
 
             var userId = jwtSecurityToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
 
 
             if (!response.IsSuccessStatusCode)
-        {
-            loginResult.Successful = false;
+            {
+                loginResult.Successful = false;
+                return loginResult;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(loginResult.AccessToken);
+            Console.WriteLine();
+
+
+            await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
+            ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email, userId);
+            ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).OnPersistingAsync();
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
+
             return loginResult;
         }
-    
-        Console.WriteLine();
-        Console.WriteLine(loginResult.AccessToken);
-        Console.WriteLine();
-
-
-        await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
-        ((PersistingRevalidatingAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email, userId);
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
-
-        return loginResult;
-    }
     }
 
 }

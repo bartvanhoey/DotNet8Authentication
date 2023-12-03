@@ -93,6 +93,11 @@
 
 
         var result = await AuthService.Login(Input);
+        if (result.Successful)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+
 
         Console.WriteLine(result);
 

@@ -73,7 +73,7 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             authenticationStateTask = task;
         }
 
-        private async Task OnPersistingAsync()
+        public async Task OnPersistingAsync()
         {
             if (authenticationStateTask is null)
             {
@@ -86,16 +86,16 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             if (principal.Identity?.IsAuthenticated == true)
             {
                 var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
-                var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+                var userName = principal.FindFirst(options.ClaimsIdentity.UserNameClaimType)?.Value;
 
-                Console.WriteLine($"userId: {userId} email: {email}");
+                Console.WriteLine($"userId: {userId} email: {userName}");
 
-                if (userId != null && email != null)
+                if (userId != null && userName != null)
                 {
                     state.PersistAsJson(nameof(UserInfo), new UserInfo
                     {
                         UserId = userId,
-                        Email = email,
+                        Email = userName,
                     });
                 }
             }
@@ -108,14 +108,13 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
             base.Dispose(disposing);
         }
 
-        public async Task MarkUserAsAuthenticated(string email, string userId)
+        public void MarkUserAsAuthenticated(string email, string userId)
         {
-            //new(ClaimTypes.Name, user?.Email ?? throw new ArgumentNullException()),
-            //            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email), 
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email),
                     new(ClaimTypes.NameIdentifier, userId) }, "apiauth"));
+
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+
             NotifyAuthenticationStateChanged(authState);
         }
     }
