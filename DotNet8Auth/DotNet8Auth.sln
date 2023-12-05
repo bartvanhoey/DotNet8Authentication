@@ -3,17 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.API", "DotNet8Auth.API\DotNet8Auth.API.csproj", "{FA0A57B3-4DD8-436C-92CD-616FFA8A4E38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.API", "DotNet8Auth.API\DotNet8Auth.API.csproj", "{FA0A57B3-4DD8-436C-92CD-616FFA8A4E38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.Shared", "DotNet8Auth.Shared\DotNet8Auth.Shared.csproj", "{8858FC71-355B-4769-95FE-2F5EE5C46EB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.Shared", "DotNet8Auth.Shared\DotNet8Auth.Shared.csproj", "{8858FC71-355B-4769-95FE-2F5EE5C46EB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWebApp", "DotNet8Auth.BlazorWebApp\DotNet8Auth.BlazorWebApp\DotNet8Auth.BlazorWebApp.csproj", "{07AE9554-2B93-48E6-A78F-9FD4CCD13DDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auht.Tests", "DotNet8Auht.Tests\DotNet8Auht.Tests.csproj", "{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWebApp.Client", "DotNet8Auth.BlazorWebApp\DotNet8Auth.BlazorWebApp.Client\DotNet8Auth.BlazorWebApp.Client.csproj", "{BFEA98FF-265B-43ED-A00D-9A7530484B11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.UiTests", "DotNet8Auth.UiTests\DotNet8Auth.UiTests.csproj", "{89273042-16A5-40F4-8177-48C078B3639F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auht.Tests", "DotNet8Auht.Tests\DotNet8Auht.Tests.csproj", "{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.UiTests", "DotNet8Auth.UiTests\DotNet8Auth.UiTests.csproj", "{89273042-16A5-40F4-8177-48C078B3639F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWebApp", "DotNet8Auth.BlazorWebApp\DotNet8Auth.BlazorWebApp.csproj", "{0154ECEB-33DA-4108-8560-AB8F983FBACE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +27,6 @@ Global
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07AE9554-2B93-48E6-A78F-9FD4CCD13DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07AE9554-2B93-48E6-A78F-9FD4CCD13DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07AE9554-2B93-48E6-A78F-9FD4CCD13DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07AE9554-2B93-48E6-A78F-9FD4CCD13DDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFEA98FF-265B-43ED-A00D-9A7530484B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFEA98FF-265B-43ED-A00D-9A7530484B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFEA98FF-265B-43ED-A00D-9A7530484B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFEA98FF-265B-43ED-A00D-9A7530484B11}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +35,10 @@ Global
 		{89273042-16A5-40F4-8177-48C078B3639F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
