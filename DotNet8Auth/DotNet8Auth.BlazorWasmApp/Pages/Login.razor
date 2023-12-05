@@ -1,13 +1,12 @@
-﻿@page "/Account/Login"
+﻿@page "/Login"
 
 @using System.ComponentModel.DataAnnotations
-@using DotNet8Auth.BlazorWebApp.Authentication
+@using DotNet8Auth.BlazorWasmApp.Authentication
+
 @using DotNet8Auth.Shared.Models.Authentication
 @using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity
-@using DotNet8Auth.BlazorWebApp.Data
-
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 
 @* @inject SignInManager<ApplicationUser> SignInManager *@

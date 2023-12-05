@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using DotNet8Auth.BlazorWasmApp.Authentication;
 
-namespace DotNet8Auth.BlazorWebApp.Authentication
+namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
     public class AuthService : IAuthService
     {
@@ -56,7 +57,7 @@ namespace DotNet8Auth.BlazorWebApp.Authentication
 
             await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
             ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
-            
+
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
 
             return loginResult;

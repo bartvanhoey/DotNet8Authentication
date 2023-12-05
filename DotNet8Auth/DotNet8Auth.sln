@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auht.Tests", "DotNet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.UiTests", "DotNet8Auth.UiTests\DotNet8Auth.UiTests.csproj", "{89273042-16A5-40F4-8177-48C078B3639F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWebApp", "DotNet8Auth.BlazorWebApp\DotNet8Auth.BlazorWebApp.csproj", "{0154ECEB-33DA-4108-8560-AB8F983FBACE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWasmApp", "DotNet8Auth.BlazorWasmApp\DotNet8Auth.BlazorWasmApp.csproj", "{376D8109-1F3D-4872-B5B8-3780F3712A3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{89273042-16A5-40F4-8177-48C078B3639F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0154ECEB-33DA-4108-8560-AB8F983FBACE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{376D8109-1F3D-4872-B5B8-3780F3712A3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{376D8109-1F3D-4872-B5B8-3780F3712A3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{376D8109-1F3D-4872-B5B8-3780F3712A3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{376D8109-1F3D-4872-B5B8-3780F3712A3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

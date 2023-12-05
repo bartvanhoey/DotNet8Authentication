@@ -1,49 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.JSInterop;
 
 
-namespace DotNet8Auth.BlazorWebApp.Authentication
+namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
 
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        
-         
-        
-        private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
+        private readonly IServiceProvider _services;
 
-        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, ILocalStorageService localStorage) 
+
+        private readonly HttpClient _httpClient;
+
+        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, IServiceProvider services ) 
         {
- 
-            
+            _services = services;
+
 
             _httpClient =   _httpClient = clientFactory.CreateClient("ServerAPI");
-            _localStorage = localStorage;
+            
         }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                var savedToken = await _localStorage.GetItemAsync<string>("authToken");
-                Console.WriteLine($"savedToken: {savedToken}");
-                if (string.IsNullOrWhiteSpace(savedToken))
+                string savedToken = string.Empty;
+                
+                if (_services.GetService<ILocalStorageService>() is { } localStorage)
                 {
-                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                    savedToken = await localStorage.GetItemAsync<string>("authToken");
+                    
                 }
+                
+                
+                Console.WriteLine($"savedToken: {savedToken}");
+                if (string.IsNullOrWhiteSpace(savedToken)) return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+                var authenticationStateAsync = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+                NotifyAuthenticationStateChanged(Task.FromResult(authenticationStateAsync));
+                return authenticationStateAsync;
             }
             catch (Exception ex)
             {

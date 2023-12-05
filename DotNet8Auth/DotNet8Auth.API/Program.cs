@@ -1,4 +1,5 @@
 using System.Text;
+using DotNet8Auth.API;
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.API.Data;
 using DotNet8Auth.Shared.Models.Authentication;
@@ -30,6 +31,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 builder.Services.AddScoped<IdentityUserAccessor>();
+
+builder.Services.AddCorsPolicy();
 
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
@@ -67,6 +70,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseCors("CorsPolicy");
 
 // Should this be here? and what does it do exactly? This
 // Add additional endpoints required by the Identity /Account Razor components.
