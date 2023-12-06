@@ -7,8 +7,17 @@ namespace DotNet8Auth.Shared.Models.Authentication
 {
     public class LoginResult
     {
-        public required string AccessToken { get; set; }
+        public string? AccessToken { get; set; }
         public DateTime ValidTo { get; set; }
         public bool Successful{ get; set; }
+
+        public string? Type { get; set; }
+
+        public string? Title { get; set; }
+       
+        public int? Status { get; set; }
+        
+        public string? TraceId { get; set; }
+
     }
 }

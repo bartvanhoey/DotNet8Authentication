@@ -1,4 +1,4 @@
-﻿@page "/Login"
+﻿@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
 @using DotNet8Auth.BlazorWasmApp.Authentication
@@ -12,7 +12,7 @@
 @* @inject SignInManager<ApplicationUser> SignInManager *@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
-@inject IAuthService AuthService
+@inject ILoginService LoginService
 
 @* @inject IdentityRedirectManager RedirectManager *@
 
@@ -21,7 +21,7 @@
 
 <h1>Log in</h1>
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <section>
             <StatusMessage Message="@errorMessage" />
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
@@ -62,13 +62,13 @@
             </EditForm>
         </section>
     </div>
-    <div class="col-md-6 col-md-offset-2">
+    @* <div class="col-md-6 col-md-offset-2">
         <section>
             <h3>Use another service to log in.</h3>
             <hr />
-            @* <ExternalLoginPicker /> *@
+            <ExternalLoginPicker /> 
         </section>
-    </div>
+    </div> *@
 </div>
 
 @code {
@@ -98,7 +98,13 @@
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
         // var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
-        var result = await AuthService.Login(Input);
+        var result = await LoginService.Login(Input);
+        if (result.Message == AuthLoginMessage.UnAuthorized )
+        {
+            errorMessage= "Error: Wrong Username or Password";
+        }
+        
+        
         NavigationManager.NavigateTo("/");
 
         // if (result.Succeeded)
