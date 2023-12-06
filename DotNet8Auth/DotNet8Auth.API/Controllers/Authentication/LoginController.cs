@@ -10,15 +10,15 @@ using System.Text;
 
 namespace DotNet8Auth.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Account")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class LoginController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public LoginController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;

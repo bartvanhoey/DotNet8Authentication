@@ -1,10 +1,9 @@
 ﻿using DotNet8Auth.Shared.Models.Authentication;
 
-namespace DotNet8Auth.BlazorWasmApp.Authentication
+namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
     public interface ILoginService
     {
-
         Task<AuthLoginResult> Login(InputModel inputModel);
     }
 
@@ -13,8 +12,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
         public AuthLoginResult() => Message = AuthLoginMessage.LoginSuccess;
         public AuthLoginResult(AuthLoginMessage message) => Message = message;
 
-
-        public bool Successful => Message == AuthLoginMessage.LoginSuccess;
+        public bool Succeeded => Message == AuthLoginMessage.LoginSuccess;
         public AuthLoginMessage Message { get; set; }
     }
 

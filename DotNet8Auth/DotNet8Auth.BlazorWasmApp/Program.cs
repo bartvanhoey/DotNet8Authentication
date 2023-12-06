@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using DotNet8Auth.BlazorWasmApp;
 using DotNet8Auth.BlazorWasmApp.Authentication;
+using DotNet8Auth.BlazorWasmApp.Authentication.Login;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -10,6 +11,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 

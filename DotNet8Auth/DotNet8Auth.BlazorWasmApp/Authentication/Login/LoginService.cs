@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DotNet8Auth.BlazorWasmApp.Authentication;
 
-namespace DotNet8Auth.BlazorWasmApp.Authentication
+namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
     public class LoginService : ILoginService
     {
