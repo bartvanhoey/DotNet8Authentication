@@ -5,47 +5,45 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 
+
 namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
 
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly IServiceProvider _services;
-
-
+        private readonly ILocalStorageService _localStorage;
         private readonly HttpClient _httpClient;
 
-        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, IServiceProvider services ) 
+        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, IServiceProvider services, ILocalStorageService localStorageService)
         {
             _services = services;
+            _localStorage = localStorageService;
+            _httpClient = _httpClient = clientFactory.CreateClient("ServerAPI");
 
-
-            _httpClient =   _httpClient = clientFactory.CreateClient("ServerAPI");
-            
         }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
+                AuthenticationState? authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
             try
             {
-                string savedToken = string.Empty;
-                
-                if (_services.GetService<ILocalStorageService>() is { } localStorage)
-                {
-                    savedToken = await localStorage.GetItemAsync<string>("authToken");
-                    
-                }
-                
-                
+                var savedToken = await _localStorage.GetItemAsync<string>("authToken");
                 Console.WriteLine($"savedToken: {savedToken}");
-                if (string.IsNullOrWhiteSpace(savedToken)) return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                if (string.IsNullOrWhiteSpace(savedToken))
+                {
+                    NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
+                    return authenticationState;
+                }
+
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-                var authenticationStateAsync = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
-                NotifyAuthenticationStateChanged(Task.FromResult(authenticationStateAsync));
-                return authenticationStateAsync;
+                authenticationState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+                NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
+                return authenticationState;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
+                return authenticationState;
             }
 
         }

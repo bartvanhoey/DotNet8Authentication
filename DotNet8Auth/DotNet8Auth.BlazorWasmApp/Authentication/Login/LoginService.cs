@@ -24,7 +24,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
             _localStorage = localStorage;
         }
 
-        public async Task<AuthLoginResult> Login(InputModel loginModel)
+        public async Task<AuthLoginResult> Login(LoginInputModel loginModel)
         {
             var loginAsJson = JsonSerializer.Serialize(loginModel);
             var response = await _httpClient.PostAsync("api/account/login", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));

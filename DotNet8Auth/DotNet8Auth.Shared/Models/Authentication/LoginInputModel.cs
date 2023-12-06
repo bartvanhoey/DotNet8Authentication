@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DotNet8Auth.Shared.Models.Authentication
 {
-    public sealed class InputModel
+    public sealed class LoginInputModel
     {
         [Required]
         [EmailAddress]
