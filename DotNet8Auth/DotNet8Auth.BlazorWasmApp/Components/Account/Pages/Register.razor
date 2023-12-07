@@ -47,13 +47,13 @@
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </EditForm>
     </div>
-    <div class="col-md-6 col-md-offset-2">
+    @* <div class="col-md-6 col-md-offset-2">
         <section>
             <h3>Use another service to register.</h3>
             <hr />
             <ExternalLoginPicker />
         </section>
-    </div>
+    </div> *@
 </div>
 
 @code {
@@ -69,10 +69,16 @@
     private string? Message { get; set; }
 
     public async Task RegisterUser(EditContext editContext)
-    {
+    { 
+      var absoluteUri =  NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri;
+
         var result = await RegisterService.Register(Input);
-        if (!result.Succeeded)
+        if (result.Succeeded)
         {
+            var callbackUrl = NavigationManager.GetUriWithQueryParameters(absoluteUri,
+            new Dictionary<string, object?> { ["userId"] = 1, ["code"] = "", ["returnUrl"] = ReturnUrl });
+        }
+        else{
             Message = "Error: Could not register the user.";
             return;
         }
@@ -113,7 +119,7 @@
         @* RedirectManager.RedirectTo(ReturnUrl); *@
     }
 
-    private ApplicationUser CreateUser()
+    @* private ApplicationUser CreateUser()
     {
         try
         {
@@ -124,7 +130,7 @@
             throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
                 $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
         }
-    }
+    } *@
 
     @* private IUserEmailStore<ApplicationUser> GetEmailStore()
     {

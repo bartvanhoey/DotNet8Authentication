@@ -6,17 +6,18 @@
 
 using Microsoft.AspNetCore.Components;
 
-namespace DotNet8Auth.BlazorWasmApp.Icons;
-
-public abstract partial class BaseIcon
+namespace DotNet8Auth.BlazorWasmApp.Icons
 {
-    private string path;
+    public abstract partial class BaseIcon
+    {
+        private string path;
 
-    protected BaseIcon(string source) => path = $"images/bootstrap-icons/bootstrap-icons.svg#{source}";
+        protected BaseIcon(string source) => path = $"images/bootstrap-icons/bootstrap-icons.svg#{source}";
 
-    [Parameter]
-    public int Size { get; set; } = 24;
+        [Parameter]
+        public int Size { get; set; } = 24;
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object> UncapturedAttributes { get; set; }
+        [Parameter(CaptureUnmatchedValues = true)]
+        public Dictionary<string, object> UncapturedAttributes { get; set; }
+    }
 }
