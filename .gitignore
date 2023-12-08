@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+DotNet8Auth/DotNet8Auth.API/appsettings.Development.json

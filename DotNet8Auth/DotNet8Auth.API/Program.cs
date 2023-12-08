@@ -2,6 +2,7 @@ using System.Text;
 using DotNet8Auth.API;
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.API.Data;
+using DotNet8Auth.API.Services.Email;
 using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -10,9 +11,13 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Configuration.AddJsonFile("Appsettings.Development.json",
+        optional: true,
+        reloadOnChange: true);
+
 // Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -20,16 +25,17 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-// Setup For Identity
+// Setup Identity
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
 
-builder.Services.AddScoped<IdentityUserAccessor>();
+builder.Services.SetupEmailClient(builder.Configuration);
+
+// builder.Services.AddScoped<IdentityUserAccessor>();
 
 builder.Services.AddCorsPolicy();
 
@@ -49,7 +55,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:ValidAudience"],
         ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecurityKey"]  ?? throw new InvalidOperationException("'Jwt:SecurityKey' not found."))),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecurityKey"] ?? throw new InvalidOperationException("'Jwt:SecurityKey' not found."))),
     };
 });
 
