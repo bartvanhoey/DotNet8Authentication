@@ -2,7 +2,6 @@ using System.Text;
 using DotNet8Auth.API;
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.API.Data;
-using DotNet8Auth.API.Services.Email;
 using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -11,10 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Configuration.AddJsonFile("Appsettings.Development.json",
-        optional: true,
-        reloadOnChange: true);
+// 
+builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllers();
