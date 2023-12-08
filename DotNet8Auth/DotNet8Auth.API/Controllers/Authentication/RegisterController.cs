@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+
 using DotNet8Auth.Shared.Models.Authentication;
-// using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Diagnostics;
+using DotNet8Auth.Shared.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -32,10 +27,10 @@ namespace DotNet8Auth.API.Controllers.Authentication
         {
             var userExists = await _userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new RegisterResponse { Status = "Error", Message = "User already exists!" });
 
             var user = CreateUser();
-            if (user == null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "CreateUser failed" }); ;
+            if (user == null) return StatusCode(StatusCodes.Status500InternalServerError, new RegisterResponse { Status = "Error", Message = "CreateUser failed" }); ;
             user.Email = model.Email;
             user.UserName = model.Email;
 
@@ -45,18 +40,15 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var confirmationLink = Url.Action("Login", "Account", new { code, email = user.Email }, Request.Scheme);
+
+               var confirmationLink = model.CallbackUrl.AddParametersToUrl( new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null }) ?? "";
+
 
                 await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
 
                 return Ok(new RegisterResponse { Status = "Success", Message = "User created successfully!", Code = code, UserId = userId });
             }
-
-
-
-
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
+            return StatusCode(StatusCodes.Status500InternalServerError, new RegisterResponse { Status = "Error", Message = "User creation failed! Please check user details and try again." });
         }
 
         private static ApplicationUser? CreateUser()

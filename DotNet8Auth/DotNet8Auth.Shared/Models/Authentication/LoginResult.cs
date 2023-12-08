@@ -15,9 +15,10 @@ namespace DotNet8Auth.Shared.Models.Authentication
 
         public string? Title { get; set; }
        
-        public int? Status { get; set; }
+        public string? Status { get; set; }
         
         public string? TraceId { get; set; }
+        public string? Message { get; set; }
 
     }
 }

@@ -15,7 +15,7 @@ namespace DotNet8Auth.API.Services.Email
         {
             googleEmail = configuration.GetRequiredSection("GoogleSmtp:GoogleEmail").Value ?? throw new ArgumentNullException();
             googleAppPassword = configuration.GetRequiredSection("GoogleSmtp:GoogleAppPassword").Value ?? throw new ArgumentNullException();
-            emailSender = new EmailSender(googleEmail, googleAppPassword);
+            emailSender = new ProductionEmailSender(googleEmail, googleAppPassword);
         }
 
 

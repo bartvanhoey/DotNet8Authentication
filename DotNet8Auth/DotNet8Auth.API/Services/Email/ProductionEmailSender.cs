@@ -4,16 +4,11 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 namespace DotNet8Auth.API.Services.Email
 {
 
-    public class EmailSender : IEmailSender
+    public class ProductionEmailSender(string googleEmail, string googleAppPassword) : IEmailSender
     {
-        private readonly string _googleEmail;
-        private readonly string _googleAppPassword;
+        private readonly string _googleEmail = googleEmail;
+        private readonly string _googleAppPassword = googleAppPassword;
 
-        public EmailSender(string googleEmail, string googleAppPassword)
-        {
-            _googleEmail = googleEmail;
-            _googleAppPassword = googleAppPassword;
-        }
         public async Task SendEmailAsync(string emailTo, string emailSubject, string emailBody)
         {
             MailMessage mailMessage = new()

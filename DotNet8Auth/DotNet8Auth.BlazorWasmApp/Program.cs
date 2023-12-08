@@ -1,8 +1,10 @@
 using Blazored.LocalStorage;
 using DotNet8Auth.BlazorWasmApp;
 using DotNet8Auth.BlazorWasmApp.Authentication;
+using DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail;
 using DotNet8Auth.BlazorWasmApp.Authentication.Login;
 using DotNet8Auth.BlazorWasmApp.Authentication.Register;
+using DotNet8Auth.BlazorWasmApp.Components.Account.Pages;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -27,6 +29,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
+builder.Services.AddScoped<IConfirmEmailService, ConfirmEmailService>();
 
 // builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

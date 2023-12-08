@@ -4,7 +4,7 @@ namespace DotNet8Auth.Shared.Models.Authentication
 {
     public class RegisterInputModel
     {
-       [Required]
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
@@ -19,6 +19,9 @@ namespace DotNet8Auth.Shared.Models.Authentication
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+        
+        public string CallbackUrl { get; set; } = "";
+
 
     }
 }

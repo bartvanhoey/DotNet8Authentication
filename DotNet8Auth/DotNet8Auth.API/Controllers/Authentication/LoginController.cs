@@ -31,7 +31,8 @@ namespace DotNet8Auth.Controllers
         {
             try
             {
-                if (input is null) throw new ArgumentNullException(nameof(input));
+                if (input is null) 
+                    return StatusCode(StatusCodes.Status500InternalServerError, new LoginResponse { Status = "Error", Message = "User does not exist." });
 
                 var user = await _userManager.FindByEmailAsync(input.Email);
                 if (user == null) return Unauthorized(); ;
@@ -67,7 +68,7 @@ namespace DotNet8Auth.Controllers
 
                 var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return Ok(new LoginResult { AccessToken = accessToken, ValidTo = token.ValidTo, Successful = true });
+                return Ok(new LoginResponse { AccessToken = accessToken, ValidTo = token.ValidTo, Successful = true });
             }
             catch (Exception)
             {
@@ -83,7 +84,7 @@ namespace DotNet8Auth.Controllers
         {
             var userExists = await _userManager.FindByNameAsync(model.Email);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new LoginResponse { Status = "Error", Message = "User already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -93,7 +94,7 @@ namespace DotNet8Auth.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new LoginResponse { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
@@ -105,7 +106,7 @@ namespace DotNet8Auth.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.Admin);
             }
 
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            return Ok(new LoginResponse { Status = "Success", Message = "User created successfully!" });
         }
     }
 

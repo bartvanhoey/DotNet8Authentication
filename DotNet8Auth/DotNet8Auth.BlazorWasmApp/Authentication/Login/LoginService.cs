@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DotNet8Auth.BlazorWasmApp.Authentication;
+using System.Net.Http.Json;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
@@ -26,33 +27,38 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 
         public async Task<AuthLoginResult> Login(LoginInputModel loginModel)
         {
-            var loginAsJson = JsonSerializer.Serialize(loginModel);
-            var response = await _httpClient.PostAsync("api/account/login", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-            var jsonContent = await response.Content.ReadAsStringAsync();
-            var loginResult = jsonContent.ConvertJsonTo<LoginResult>();
+            var json = loginModel.ToJson();
+            if (json == null) return new AuthLoginResult(AuthLoginMessage.LoginInputModelIsNull); ;
+            var response = await _httpClient.PostAsync("api/account/login", new StringContent(json, Encoding.UTF8, "application/json"));
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResult>();
+            if (result?.AccessToken == null) return new AuthLoginResult(AuthLoginMessage.AccessTokenNull); ;
+
+            // var jsonContent = await response.Content.ReadAsStringAsync();
+            // var loginResult = jsonContent.ConvertJsonTo<LoginResult>();
 
             if (response.IsSuccessStatusCode)
             {
-                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(loginResult.AccessToken) as JwtSecurityToken;
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(result.AccessToken) as JwtSecurityToken;
                 var userId = jwtSecurityToken?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
                 Console.WriteLine();
-                Console.WriteLine(loginResult.AccessToken);
+                Console.WriteLine(result.AccessToken);
                 Console.WriteLine(userId);
                 Console.WriteLine();
 
-                await _localStorage.SetItemAsync("authToken", loginResult.AccessToken);
+                await _localStorage.SetItemAsync("authToken", result.AccessToken);
                 ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.AccessToken);
-                return new AuthLoginResult() { Message = AuthLoginMessage.LoginSuccess };
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.AccessToken);
+                return new AuthLoginResult();
             }
             else
             {
                 await _localStorage.RemoveItemAsync("authToken");
-                return loginResult.Status == 401
-                    ? new AuthLoginResult() { Message = AuthLoginMessage.UnAuthorized }
-                    : new AuthLoginResult() { Message = AuthLoginMessage.Unknown };
+                return result.Status == "401"
+                    ? new AuthLoginResult(AuthLoginMessage.UnAuthorized)
+                    : new AuthLoginResult(AuthLoginMessage.Unknown);
             }
 
 

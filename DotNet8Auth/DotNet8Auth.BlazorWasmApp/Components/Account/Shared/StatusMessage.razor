@@ -1,19 +1,20 @@
-@if (!string.IsNullOrEmpty(Message) && showAlert )
+@if (!string.IsNullOrEmpty(Message))
 {
-    var statusMessageClass = Message.StartsWith("Error:") ? "danger" : "success";
-    <div class="alert alert-@statusMessageClass alert-dismissible fade show" role="alert">
-        @DisplayMessage
-          <button @onclick="HideAlert" type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-    </div>
+  var statusMessageClass = Message.StartsWith("Error:") ? "danger" : "success";
+  <div class="alert alert-@statusMessageClass alert-dismissible fade show" role="alert">
+    @DisplayMessage
+    <button @onclick="HideAlert" type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 }
 
 @code {
-
-    [Parameter]
-    public string? Message { get; set; }
-    private string? DisplayMessage => Message?.Replace("Error:", "").Trim() ?? ""; 
-    private bool showAlert= true;
-    public void HideAlert() => showAlert = false;
+  [Parameter] public string? Message { get; set; }
+  private string? DisplayMessage => Message?.Replace("Error:", "").Trim() ?? "";
+  public void HideAlert()
+  {
+    Message = string.Empty;
+    StateHasChanged();
+  }
 }
