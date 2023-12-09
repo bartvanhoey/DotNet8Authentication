@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotNet8Auth.Shared.Models.Authentication;
+using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
+using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;

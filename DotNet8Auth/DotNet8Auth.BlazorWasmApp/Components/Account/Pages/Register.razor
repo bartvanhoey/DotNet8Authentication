@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using DotNet8Auth.Shared.Models.Authentication
+@using DotNet8Auth.Shared.Models.Authentication.Register
 
 
 @inject ILogger<Register> Logger
@@ -54,7 +55,7 @@
 </div>
 
 @code {
-    private IEnumerable<IdentityError>? identityErrors;
+    // private IEnumerable<IdentityError>? identityErrors;
 
     [SupplyParameterFromForm]
     private RegisterInputModel Input { get; set; } = new();
@@ -72,10 +73,12 @@
         var result = await RegisterService.RegisterAsync(Input);
         if (result.Succeeded)
         {
-            var callbackUrl = NavigationManager.GetUriWithQueryParameters(absoluteUri,
-            new Dictionary<string, object?> { ["userId"] = 1, 
-                            ["code"] = "", 
-                            ["returnUrl"] = ReturnUrl });
+            // var callbackUrl = NavigationManager.GetUriWithQueryParameters(absoluteUri,
+            // new Dictionary<string, object?> { ["userId"] = 1, 
+            //                 ["code"] = "", 
+            //                 ["returnUrl"] = ReturnUrl });
+            
+            // TODO go to next page
         }
         else
         {

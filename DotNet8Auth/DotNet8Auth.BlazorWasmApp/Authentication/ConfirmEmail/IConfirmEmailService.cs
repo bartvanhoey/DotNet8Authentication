@@ -1,4 +1,5 @@
 using DotNet8Auth.Shared.Models.Authentication;
+using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
 {

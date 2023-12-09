@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DotNet8Auth.Shared.Models.Authentication
+namespace DotNet8Auth.Shared.Models.Authentication.Login
 {
     public class LoginResult
     {

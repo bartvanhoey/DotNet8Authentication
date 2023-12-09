@@ -1,8 +1,5 @@
 @page "/Account/ConfirmEmail"
-
-@using System.Text
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
+@using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail
 @inject NavigationManager NavigationManager
 @inject IConfirmEmailService ConfirmEmailService
 
@@ -20,7 +17,7 @@
 
 
 @code {
-    private string? statusMessage;
+    
 
     [SupplyParameterFromQuery]
     private string? UserId { get; set; }
@@ -28,14 +25,13 @@
     [SupplyParameterFromQuery]
     private string? Code { get; set; }
 
-    public string? Message { get; set; }
+    private string? Message { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        if (UserId is null || Code is null)
-        {
-            NavigationManager!.NavigateTo("/", false);
-        }
+        if (UserId is null || Code is null) NavigationManager!.NavigateTo("/", false);
+        
+        return Task.CompletedTask;
     }
 
     @* var user = await UserManager.FindByIdAsync(UserId);

@@ -5,26 +5,24 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 
-
 namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
 
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly IServiceProvider _services;
+        
         private readonly ILocalStorageService _localStorage;
         private readonly HttpClient _httpClient;
 
-        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, IServiceProvider services, ILocalStorageService localStorageService)
+        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, ILocalStorageService localStorageService)
         {
-            _services = services;
             _localStorage = localStorageService;
             _httpClient = _httpClient = clientFactory.CreateClient("ServerAPI");
 
         }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-                AuthenticationState? authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
+                AuthenticationState authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
             try
             {
                 var savedToken = await _localStorage.GetItemAsync<string>("authToken");
@@ -65,34 +63,34 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
         private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
         {
             var claims = new List<Claim>();
-            string payload = string.Empty;
-            payload = jwt.Split('.')[1];
+            var payload = jwt.Split('.')[1];
             var jsonBytes = ParseBase64WithoutPadding(payload);
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-            keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
-
-            if (roles != null)
+            if (keyValuePairs == null) return claims;
+            
+            
+            if (keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles))
             {
-                if (roles.ToString().Trim().StartsWith("["))
+                
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                if (roles != null)
                 {
-                    var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
-
-                    foreach (var parsedRole in parsedRoles)
+                    if ("[".StartsWith(roles.ToString()!.Trim()))
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, parsedRole));
+                        var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString()!);
+                        if (parsedRoles == null)                            return claims;
+                        claims.AddRange(parsedRoles.Select(parsedRole => new Claim(ClaimTypes.Role, parsedRole)));
                     }
-                }
-                else
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
-                }
+                    else
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
+                    }
 
-                keyValuePairs.Remove(ClaimTypes.Role);
+                    keyValuePairs.Remove(ClaimTypes.Role);
+                }    
             }
-
-            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
-
+            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? throw new InvalidOperationException())));
             return claims;
         }
 

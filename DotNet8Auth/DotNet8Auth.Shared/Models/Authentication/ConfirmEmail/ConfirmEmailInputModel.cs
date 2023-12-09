@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace DotNet8Auth.Shared.Models.Authentication
+namespace DotNet8Auth.Shared.Models.Authentication.ConfirmEmail
 {
     public class ConfirmEmailInputModel
     {

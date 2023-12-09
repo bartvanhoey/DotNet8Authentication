@@ -2,6 +2,7 @@ using System.Text;
 
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Extensions;
+using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using DotNet8Auth.Shared.Extensions;
 using DotNet8Auth.Shared.Models.Authentication;
+using DotNet8Auth.Shared.Models.Authentication.Register;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
 {

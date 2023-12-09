@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DotNet8Auth.BlazorWasmApp.Authentication;
 using System.Net.Http.Json;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
