@@ -5,7 +5,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
     public interface ILoginService
     {
-        Task<AuthLoginResult> Login(LoginInputModel inputModel);
+        Task<AuthLoginResult> Login(LoginInputModel input);
     }
 
 }
