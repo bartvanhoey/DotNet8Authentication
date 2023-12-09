@@ -11,22 +11,14 @@ namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
     [Route("api/Account")]
-    public class RegisterController : ControllerBase
+    public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender)
+        : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender<ApplicationUser> _emailSender;
-
-        public RegisterController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailSender<ApplicationUser> EmailSender)
-        {
-            _userManager = userManager;
-            _emailSender = EmailSender;
-        }
-
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model)
         {
-            var userExists = await _userManager.FindByEmailAsync(model.Email);
+            var userExists = await userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new RegisterResponse { Status = "Error", Message = "User already exists!" });
 
@@ -35,17 +27,17 @@ namespace DotNet8Auth.API.Controllers.Authentication
             user.Email = model.Email;
             user.UserName = model.Email;
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                var userId = await _userManager.GetUserIdAsync(user);
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var userId = await userManager.GetUserIdAsync(user);
+                var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
                var confirmationLink = model.CallbackUrl.AddParametersToUrl( new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null }) ?? "";
 
 
-                await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
+                await emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
 
                 return Ok(new RegisterResponse { Status = "Success", Message = "User created successfully!", Code = code, UserId = userId });
             }

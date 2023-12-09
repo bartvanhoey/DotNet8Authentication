@@ -13,8 +13,8 @@
 <PageTitle>Register confirmation</PageTitle>
 
 <h2>Register confirmation</h2>
-<br>
-<StatusMessage Message="@statusMessage" />
+<hr/>
+<StatusMessage Message="@statusMessage"/>
 
 @if (emailConfirmationLink is not null)
 {
@@ -35,11 +35,9 @@ else
     // [CascadingParameter]
     // private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromQuery]
-    private string? Email { get; set; }
+    [SupplyParameterFromQuery] private string? Email { get; set; }
 
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -65,4 +63,5 @@ else
         //         new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
         // }
     }
+
 }
