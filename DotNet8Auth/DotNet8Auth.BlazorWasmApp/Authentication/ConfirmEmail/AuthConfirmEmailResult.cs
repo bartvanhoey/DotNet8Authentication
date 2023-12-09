@@ -1,12 +1,16 @@
+using static DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail.AuthConfirmEmailInfo;
+
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
 {
-    public class AuthConfirmEmailResult
+    public class AuthConfirmEmailResult(AuthConfirmEmailInfo message)
     {
 
-        public AuthConfirmEmailResult() => Message = AuthConfirmEmailInfo.ConfirmEmailSuccessful;
-        public AuthConfirmEmailResult(AuthConfirmEmailInfo message) => Message = message;
-        public bool Succeeded => Message == AuthConfirmEmailInfo.ConfirmEmailSuccessful;
-        public AuthConfirmEmailInfo Message { get; set; }
+        public AuthConfirmEmailResult() : this(ConfirmEmailSuccessful)
+        {
+        }
+
+        public bool Succeeded => Message == ConfirmEmailSuccessful;
+        private AuthConfirmEmailInfo Message { get; } = message;
     }
 
 

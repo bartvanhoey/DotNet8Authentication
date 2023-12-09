@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
+using static DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail.AuthConfirmEmailInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
 {
@@ -14,7 +15,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
 
             return result is { Succeeded: true }
                 ? new AuthConfirmEmailResult()
-                : new AuthConfirmEmailResult(AuthConfirmEmailInfo.ConfirmEmailUnsuccessful);
+                : new AuthConfirmEmailResult(ConfirmEmailUnsuccessful);
         }
     }
 }

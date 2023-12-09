@@ -27,9 +27,11 @@ builder.Services.AddHttpClient("ServerAPI", client => client.BaseAddress = new U
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
 
-builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IRegisterService, RegisterService>();
-builder.Services.AddScoped<IConfirmEmailService, ConfirmEmailService>();
+builder.Services.AddAuthenticationServices();
+
+// builder.Services.AddScoped<ILoginService, LoginService>();
+// builder.Services.AddScoped<IRegisterService, RegisterService>();
+// builder.Services.AddScoped<IConfirmEmailService, ConfirmEmailService>();
 
 // builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
