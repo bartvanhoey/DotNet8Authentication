@@ -7,7 +7,7 @@
 
 <PageTitle>Resend Email Confirmation</PageTitle>
 
-<StatusMessage Message="@message"/>
+<StatusMessage Message="@_message"/>
 <div class="row">
     <div class="col-md-6">
         <EditForm Model="Input" FormName="resend-email-confirmation" OnValidSubmit="OnValidSubmitAsync" method="post">
@@ -27,8 +27,9 @@
 </div>
 
 @code {
-    private string? message;
+    private string? _message;
 
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
     [SupplyParameterFromForm] private ResendEmailConfirmationInputModel Input { get; set; } = new();
 
     private async Task OnValidSubmitAsync()
@@ -38,28 +39,9 @@
         var result = await ResendEmailConfirmationService.ResendEmailConfirmationAsync(Input);
         if (result.Succeeded)
         {
-            message = "Verification email sent. Please check your email.";
+            _message = "Verification email sent. Please check your email.";
+            return;
         }
-        // var user = await UserManager.FindByEmailAsync(Input.Email!);
-        // if (user is null)
-        // {
-        //     message = "Verification email sent. Please check your email.";
-        //     return;
-        // }
-        //
-        // var userId = await UserManager.GetUserIdAsync(user);
-        // var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        // code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        // var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-        //     NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-        //     new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
-        // await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+        _message = "Error: Resend email confirmation went wrong.";
     }
-
-    // private sealed class InputModel
-    // {
-    //     [Required]
-    //     [EmailAddress]
-    //     public string Email { get; set; } = "";
-    // }
 }

@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using DotNet8Auth.Shared.Models.Authentication.Register;
+using static DotNet8Auth.BlazorWasmApp.Authentication.Register.AuthRegisterInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
 {
@@ -14,7 +15,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
 
             return result is { Succeeded: true }
                 ? new AuthRegisterResult()
-                : new AuthRegisterResult(AuthRegisterInfo.RegistrationUnsuccessful);
+                : new AuthRegisterResult(RegistrationUnsuccessful);
         }
     }
 }

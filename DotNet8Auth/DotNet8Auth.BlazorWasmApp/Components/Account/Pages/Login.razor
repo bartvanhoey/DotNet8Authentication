@@ -20,7 +20,7 @@
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                 <DataAnnotationsValidator/>
                 <h2>Log in</h2>
-                <hr />
+                <hr/>
                 <ValidationSummary class="text-danger" role="alert"/>
                 <div class="form-floating mb-3">
                     <InputText id="email" @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true"/>
@@ -105,10 +105,7 @@
         }
         else
         {
-            if (result.Message == AuthLoginMessage.UnAuthorized)
-            {
-                _errorMessage = "Error: Username or Password wrong!";
-            }
+            _errorMessage = "Error: Username or Password wrong!";
         }
 
 

@@ -1,11 +1,15 @@
+using static DotNet8Auth.BlazorWasmApp.Authentication.Register.AuthRegisterInfo;
+
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
 {
-    public class AuthRegisterResult
+    public class AuthRegisterResult(AuthRegisterInfo message)
     {
-        public AuthRegisterResult() => Message = AuthRegisterInfo.RegistrationSuccessful;
-        public AuthRegisterResult(AuthRegisterInfo message) => Message = message;
-        public bool Succeeded => Message == AuthRegisterInfo.RegistrationSuccessful;
-        public AuthRegisterInfo Message { get; set; }
+        public AuthRegisterResult() : this(RegistrationSuccessful)
+        {
+        }
+
+        public bool Succeeded => Message == RegistrationSuccessful;
+        private AuthRegisterInfo Message { get; set; } = message;
     }
 
 }

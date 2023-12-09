@@ -10,46 +10,31 @@
 
 <div class="row">
     <div class="col-md-12">
-        <StatusMessage Message="@Message" />
-        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">Click the button to
-            confirm your email address</button>
+        <StatusMessage Message="@Message"/>
+        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">
+            Click the button to
+            confirm your email address
+        </button>
     </div>
 </div>
 
 
 @code {
-    
-
-    [SupplyParameterFromQuery]
-    private string? UserId { get; set; }
-
-    [SupplyParameterFromQuery]
-    private string? Code { get; set; }
-
+    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+    [SupplyParameterFromQuery] private string? UserId { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+    [SupplyParameterFromQuery] private string? Code { get; set; }
     private string? Message { get; set; }
 
     protected override Task OnInitializedAsync()
     {
-        if (UserId is null || Code is null) NavigationManager!.NavigateTo("/", false);
-        
+        if (UserId is null || Code is null) NavigationManager!.NavigateTo("/");
         return Task.CompletedTask;
     }
 
-    @* var user = await UserManager.FindByIdAsync(UserId);
-if (user is null)
-{
-HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-statusMessage = $"Error loading user with ID {UserId}";
-}
-else
-{
-var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
-var result = await UserManager.ConfirmEmailAsync(user, code);
-statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
-} *@
+
     private async Task ConfirmEmailAsync(MouseEventArgs e)
     {
-
         if (UserId == null || Code == null)
         {
             Message = "Confirmation went wrong";
@@ -57,17 +42,9 @@ statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Err
         }
 
         var result = await ConfirmEmailService.ConfirmEmailAsync(new ConfirmEmailInputModel { UserId = UserId, Code = Code });
-
-        if (result.Succeeded)
-        {
-            NavigationManager!.NavigateTo("/", false);
-        }
+        if (result.Succeeded) NavigationManager!.NavigateTo("/");
         else
-        {
             Message = "The system couldn't confirm your email";
-        }
-
-
     }
 
 }

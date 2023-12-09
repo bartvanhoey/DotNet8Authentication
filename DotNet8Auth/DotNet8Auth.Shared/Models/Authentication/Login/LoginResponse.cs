@@ -2,6 +2,22 @@ namespace DotNet8Auth.Shared.Models.Authentication.Login
 {
     public class LoginResponse
     {
+        public LoginResponse()
+        {
+        }
+
+        public LoginResponse(string? status, string? message)
+        {
+            Status = status;
+            Message = message;
+        }
+
+        public LoginResponse(string? accessToken, DateTime validTo, bool successful) : this()
+        {
+            AccessToken = accessToken;
+            ValidTo = validTo;
+            Successful = successful;
+        }
 
         public string? AccessToken { get; set; }
         public DateTime ValidTo { get; set; }

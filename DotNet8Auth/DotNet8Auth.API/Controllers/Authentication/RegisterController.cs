@@ -34,7 +34,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-               var confirmationLink = model.CallbackUrl.AddParametersToUrl( new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null }) ?? "";
+               var confirmationLink = model.CallbackUrl.AddUrlParameters( new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null }) ?? "";
 
 
                 await emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);

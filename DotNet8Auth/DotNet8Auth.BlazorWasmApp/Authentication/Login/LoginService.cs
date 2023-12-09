@@ -18,6 +18,8 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 
         public async Task<AuthLoginResult> Login(LoginInputModel input)
         {
+            await localStorage.RemoveItemAsync("authToken");
+            
             var response = await _httpClient.PostAsJsonAsync("api/account/login", input);
             var result = await response.Content.ReadFromJsonAsync<LoginResult>();
 
@@ -40,7 +42,6 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
                 return new AuthLoginResult();
             }
 
-            await localStorage.RemoveItemAsync("authToken");
 
             return result.Status == "401"
                 ? new AuthLoginResult(AuthLoginMessage.UnAuthorized)

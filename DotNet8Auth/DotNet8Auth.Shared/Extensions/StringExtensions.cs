@@ -10,7 +10,7 @@ namespace DotNet8Auth.Shared.Extensions
             PropertyNameCaseInsensitive = true
         });
 
-        public static string AddParametersToUrl(this string url, IDictionary<string, object?> parameters)
+        public static string AddUrlParameters(this string url, IDictionary<string, object?> parameters)
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url), "Base URL cannot be null or empty.");
 
