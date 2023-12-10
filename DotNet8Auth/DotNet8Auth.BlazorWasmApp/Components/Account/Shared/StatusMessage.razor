@@ -11,8 +11,9 @@
 
 @code {
   [Parameter] public string? Message { get; set; }
-  private string? DisplayMessage => Message?.Replace("Error:", "").Trim() ?? "";
-  public void HideAlert()
+  private string DisplayMessage => Message?.Replace("Error:", "").Trim() ?? "";
+
+  private void HideAlert()
   {
     Message = string.Empty;
     StateHasChanged();
