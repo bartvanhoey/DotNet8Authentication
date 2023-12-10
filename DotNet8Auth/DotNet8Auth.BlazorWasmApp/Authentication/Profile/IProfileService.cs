@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Blazored.LocalStorage;
 using DotNet8Auth.Shared.Models.Authentication.Profile;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
@@ -9,12 +10,24 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
         public Task<ProfileResult> GetProfileAsync(string email);
     }
 
-    public class ProfileService(IHttpClientFactory clientFactory) : IProfileService
+    public static class HttpClientFactoryExtensions
     {
-        private readonly HttpClient _http = clientFactory.CreateClient("ServerAPI");
+        public static async Task<HttpClient> CreateClientWithAccessToken(this IHttpClientFactory clientFactory, ILocalStorageService localStorageService)
+        {
+            var http =  clientFactory.CreateClient("ServerAPI");
+            var savedToken = await localStorageService.GetItemAsync<string>("authToken");
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
+            return http;
+        }
+    }
+    
+    public class ProfileService(IHttpClientFactory clientFactory, ILocalStorageService localStorageService) : IProfileService
+    {
+
         public async Task<ProfileResult> GetProfileAsync(string email)
         {
-            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYmFydHZhbmhvZXlAaG90bWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ2NjI5OWM3LThlNWItNDI3MS1hZWQ0LTVhNmYxMzkxMmQ0ZSIsImp0aSI6IjMyYTdlYjY3LWM0MmQtNDcxNC1hYTcwLTQ0NTc1ZDNmOGZiYiIsImV4cCI6MTcwMjI0NzA5NiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzE5OSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcwMzYvIn0.7urR5L28vEgUA-G-bakwBSQ2uld9FbyglvRVPIxvI3Y");
+            var _http = await clientFactory.CreateClientWithAccessToken(localStorageService);
+            
             var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
 
             return response;
