@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using DotNet8Auth.BlazorWasmApp.Authentication.Register;
 using DotNet8Auth.Shared.Models.Authentication.ResetPassword;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ResetPassword
