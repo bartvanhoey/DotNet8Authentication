@@ -12,11 +12,11 @@
         <AuthorizeView>
             <Authorized>
                   @* <NavLink class="nav-link"  Match="NavLinkMatch.All">Profile</NavLink> *@
-                <a href="Account/Manage" class="dropdown-item">Profile</a>
+                <a href="Account/profile" class="dropdown-item">Profile</a>
                 <a href="orders" class="dropdown-item">Orders</a>
                 <hr/>
                 <AdminMenu/>
-                <button class="dropdown-item" @onclick="Logout">Logout</button>
+                <a class="dropdown-item" @onclick="Logout">Logout</a>
             </Authorized>
             <NotAuthorized>
                 <a href="/account/login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="dropdown-item">Login</a>

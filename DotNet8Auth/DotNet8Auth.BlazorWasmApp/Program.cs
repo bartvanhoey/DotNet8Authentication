@@ -19,7 +19,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 
 builder.Services.AddHttpClient("ServerAPI", client => client.BaseAddress = new Uri("https://localhost:7199/"));
-//.AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
+    // .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
 builder.Services.AddAuthenticationServices();

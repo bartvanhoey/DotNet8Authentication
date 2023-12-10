@@ -7,25 +7,19 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
-
-    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+    public class CustomAuthenticationStateProvider(
+        IHttpClientFactory clientFactory,
+        ILocalStorageService localStorageService)
+        : AuthenticationStateProvider
     {
-        
-        private readonly ILocalStorageService _localStorage;
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient = clientFactory.CreateClient("ServerAPI");
 
-        public CustomAuthenticationStateProvider(IHttpClientFactory clientFactory, ILocalStorageService localStorageService)
-        {
-            _localStorage = localStorageService;
-            _httpClient = _httpClient = clientFactory.CreateClient("ServerAPI");
-
-        }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-                AuthenticationState authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
+            AuthenticationState authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
             try
             {
-                var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+                var savedToken = await localStorageService.GetItemAsync<string>("authToken");
                 Console.WriteLine($"savedToken: {savedToken}");
                 if (string.IsNullOrWhiteSpace(savedToken))
                 {
@@ -34,7 +28,9 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
                 }
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-                authenticationState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+                authenticationState =
+                    new AuthenticationState(
+                        new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
                 NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
                 return authenticationState;
             }
@@ -43,12 +39,12 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
                 NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
                 return authenticationState;
             }
-
         }
 
         public void MarkUserAsAuthenticated(string email)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
+            var authenticatedUser =
+                new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }
@@ -68,18 +64,17 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
             if (keyValuePairs == null) return claims;
-            
-            
+
+
             if (keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles))
             {
-                
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                 if (roles != null)
                 {
                     if ("[".StartsWith(roles.ToString()!.Trim()))
                     {
                         var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString()!);
-                        if (parsedRoles == null)                            return claims;
+                        if (parsedRoles == null) return claims;
                         claims.AddRange(parsedRoles.Select(parsedRole => new Claim(ClaimTypes.Role, parsedRole)));
                     }
                     else
@@ -88,9 +83,11 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
                     }
 
                     keyValuePairs.Remove(ClaimTypes.Role);
-                }    
+                }
             }
-            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? throw new InvalidOperationException())));
+
+            claims.AddRange(keyValuePairs.Select(kvp =>
+                new Claim(kvp.Key, kvp.Value.ToString() ?? throw new InvalidOperationException())));
             return claims;
         }
 
@@ -98,9 +95,14 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
         {
             switch (base64.Length % 4)
             {
-                case 2: base64 += "=="; break;
-                case 3: base64 += "="; break;
+                case 2:
+                    base64 += "==";
+                    break;
+                case 3:
+                    base64 += "=";
+                    break;
             }
+
             return Convert.FromBase64String(base64);
         }
     }

@@ -6,18 +6,21 @@ namespace DotNet8Auth.API
 {
     public static class ServiceCollectionExtensions
     {
-
         public static void AddCorsPolicy(this IServiceCollection services)
         {
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    policy.WithOrigins("https://localhost:7036/")
+                        .SetIsOriginAllowed((_) => true)
+                        // .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
         }
-
 
 
         public static void SetupEmailClient(this IServiceCollection services, IConfiguration configuration)
@@ -27,12 +30,8 @@ namespace DotNet8Auth.API
             //     services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
             // else
             //     services.AddSingleton<IEmailSender<ApplicationUser>, IdentityDevelopmentEmailSender>();
-            
+
             services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
-
         }
-
-
-
     }
 }
