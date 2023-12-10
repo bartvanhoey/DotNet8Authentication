@@ -19,4 +19,8 @@
     <ProjectReference Include="..\DotNet8Auth.Shared\DotNet8Auth.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Account\Pages\Manage\" />
+  </ItemGroup>
+
 </Project>

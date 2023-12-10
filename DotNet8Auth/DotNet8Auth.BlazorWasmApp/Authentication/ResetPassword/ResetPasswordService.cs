@@ -11,7 +11,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ResetPassword
         public async Task<AuthResetPasswordResult> ResetPasswordAsync(ResetPasswordInputModel input)
         {
             var response = await _http.PostAsJsonAsync("api/account/reset-password", input);
-            var result = await response.Content.ReadFromJsonAsync<RegisterResult>();
+            var result = await response.Content.ReadFromJsonAsync<ResetPasswordResult>();
 
             return result is { Succeeded: true }
                 ? new AuthResetPasswordResult()

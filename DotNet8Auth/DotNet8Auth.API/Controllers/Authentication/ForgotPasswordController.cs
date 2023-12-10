@@ -29,7 +29,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 return StatusCode(Status500InternalServerError,
                     new ForgotPasswordResponse("Error", "Forgot password went wrong"));
             
-            var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var code = await userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var resetLink = input.CallbackUrl.AddUrlParameters(new Dictionary<string, object?> { ["code"] = code });
 

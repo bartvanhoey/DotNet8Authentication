@@ -26,16 +26,16 @@
 </div>
 
 @code {
-    private bool showUserMenu = false;
+    private bool _showUserMenu = false;
 
-    private string UserMenuCssClass => showUserMenu ? "show-menu" : "";
+    private string UserMenuCssClass => _showUserMenu ? "show-menu" : "";
 
-    private void ToggleUserMenu() => showUserMenu = !showUserMenu;
+    private void ToggleUserMenu() => _showUserMenu = !_showUserMenu;
 
     private async Task HideUserMenu()
     {
         await Task.Delay(200);
-        showUserMenu = false;
+        _showUserMenu = false;
     }
 
     private async Task Logout()
