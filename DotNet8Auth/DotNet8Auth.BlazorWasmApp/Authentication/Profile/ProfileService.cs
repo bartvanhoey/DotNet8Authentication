@@ -6,18 +6,18 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
 {
     public class ProfileService(IHttpClientFactory clientFactory, ILocalStorageService localStorage) : IProfileService
     {
-
+        private readonly HttpClient _http = clientFactory.CreateClient("ServerAPI");
         public async Task<ProfileResult?> GetProfileAsync(string email)
         {
-            var http = await clientFactory.CreateAuthHttpClient(localStorage);
-            var response = await http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
+            // var http = await clientFactory.CreateAuthHttpClient(localStorage);
+            var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
             return response;
         }
 
         public async Task<AuthSetPhoneNumberResult> SetPhoneNumberAsync(SetPhoneNumberInputModel model)
         {
-            var http = await clientFactory.CreateAuthHttpClient(localStorage);
-            var response = await http.PostAsJsonAsync("api/account/set-phone-number", model);
+            // var http = await clientFactory.CreateAuthHttpClient(localStorage);
+            var response = await _http.PostAsJsonAsync("api/account/set-phone-number", model);
             var result = await response.Content.ReadFromJsonAsync<ProfileResult>();
 
             return result is { Succeeded: true }
@@ -26,4 +26,6 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
             
         }
     }
+
+     
 }

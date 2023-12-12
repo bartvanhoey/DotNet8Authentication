@@ -59,6 +59,7 @@
         if (string.IsNullOrWhiteSpace(Input.PhoneNumber)) return;
         var model = new SetPhoneNumberInputModel { PhoneNumber = Input.PhoneNumber, Email = _userName };
         var profile = await ProfileService.SetPhoneNumberAsync(model);
+        Message = "";
         Message = profile.Succeeded ? "Phone number successfully updated" : "Error: Updating phone number went wrong";
     }
 
