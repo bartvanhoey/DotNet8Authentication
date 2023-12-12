@@ -8,7 +8,9 @@
         <div class="top-row px-2">
             <AuthorizeView>
                 <Authorized>
-                    @context.User.Identity?.Name
+                    <NavLink class="nav-link" href="Account/Profile">
+                        @context.User.Identity?.Name
+                    </NavLink>
                 </Authorized>
             </AuthorizeView>
             <UserProfileButton/>

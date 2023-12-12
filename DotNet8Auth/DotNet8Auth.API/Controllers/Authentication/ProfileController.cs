@@ -29,15 +29,23 @@ namespace DotNet8Auth.API.Controllers.Authentication
 
             return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
         }
-    }
+        
+        [Authorize]
+        [HttpPost]
+        [Route("set-phone-number")]
+        public async Task<IActionResult> SetPhoneNumber([FromBody] SetPhoneNumberInputModel model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return StatusCode(Status500InternalServerError,
+                    new ProfileResponse("Error", "User retrieval went wrong"));
 
-    public class ProfileResponse(string? status, string? userName, string? phoneNumber)
-    {
-        public ProfileResponse(string? status, string? message) : this(status, null, null) => Message = message;
-
-        public string? Status { get; set; } = status;
-        public string? Message { get; set; }
-        public string? UserName { get; set; } = userName;
-        public string? PhoneNumber { get; set; } = phoneNumber;
+            var result = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+            return result.Succeeded
+                ? Ok(new ProfileResponse("Success", userName: user.UserName, phoneNumber: model.PhoneNumber))
+                : StatusCode(Status500InternalServerError,
+                    new ProfileResponse("Error", "Update UserProfile went wrong"));
+        }
+        
     }
 }
