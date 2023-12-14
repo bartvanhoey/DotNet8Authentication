@@ -1,14 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
 using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using static System.Guid;
 using static System.Security.Claims.ClaimTypes;
+using static System.String;
+using static System.Text.Encoding;
 using static Microsoft.AspNetCore.Http.StatusCodes;
+using static Microsoft.IdentityModel.Tokens.SecurityAlgorithms;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
@@ -39,9 +42,9 @@ namespace DotNet8Auth.API.Controllers.Authentication
 
                 var authClaims = new List<Claim>
                 {
-                    new(Name, user?.Email ?? throw new ArgumentNullException()),
-                    new(NameIdentifier, user.Id.ToString()),
-                    new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new(Name, user.Email ?? throw new ArgumentNullException()),
+                    new(NameIdentifier, user.Id),
+                    new(JwtRegisteredClaimNames.Jti, NewGuid().ToString()),
                 };
 
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -50,21 +53,29 @@ namespace DotNet8Auth.API.Controllers.Authentication
                     authClaims.AddRange(userRoles.Select(userRole => new Claim(Role, userRole)));
                 }
 
-                var configJwtSecurityKey = configuration["Jwt:SecurityKey"];
-                if (string.IsNullOrEmpty(configJwtSecurityKey)) return Unauthorized();
+                var jwtValidIssuer = configuration["Jwt:ValidIssuer"];
+                if (IsNullOrEmpty(jwtValidIssuer))
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid issuer"));
+                
+                var jwtValidAudience = configuration["Jwt:ValidAudience"];
+                if (IsNullOrEmpty(jwtValidAudience))
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid audience"));
 
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configJwtSecurityKey));
+                var jwtSecurityKey = configuration["Jwt:SecurityKey"];
+                if (IsNullOrEmpty(jwtSecurityKey))
+                    return StatusCode(Status500InternalServerError,
+                        new LoginResponse("Error", "Security key not configured"));
 
                 var token = new JwtSecurityToken(
-                    issuer: configuration["Jwt:ValidIssuer"],
-                    audience: configuration["Jwt:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
+                    issuer: jwtValidIssuer,
+                    audience: jwtValidAudience,
+                    expires: DateTime.UtcNow.AddHours(3),
                     claims: authClaims,
-                    signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
+                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(UTF8.GetBytes(jwtSecurityKey)), HmacSha256)
                 );
 
                 var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new LoginResponse(accessToken, token.ValidTo, true));
+                return Ok(new LoginResponse(accessToken, token.ValidTo));
             }
             catch (Exception)
             {
@@ -86,7 +97,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
             ApplicationUser user = new ApplicationUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
+                SecurityStamp = NewGuid().ToString(),
                 UserName = model.Email
             };
             var result = await userManager.CreateAsync(user, model.Password);

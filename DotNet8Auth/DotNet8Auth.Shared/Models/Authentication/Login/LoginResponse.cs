@@ -12,11 +12,11 @@ namespace DotNet8Auth.Shared.Models.Authentication.Login
             Message = message;
         }
 
-        public LoginResponse(string? accessToken, DateTime validTo, bool successful) : this()
+        public LoginResponse(string? accessToken, DateTime validTo) : this()
         {
             AccessToken = accessToken;
             ValidTo = validTo;
-            Successful = successful;
+            Successful = true;
         }
 
         public string? AccessToken { get; set; }
