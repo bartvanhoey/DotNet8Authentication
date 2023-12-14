@@ -1,7 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace DotNet8Auth.BlazorWasmApp
 {
