@@ -19,7 +19,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
             AuthenticationState authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
             try
             {
-                var savedToken = await localStorageService.GetItemAsync<string>("authToken");
+                var savedToken = await localStorageService.GetItemAsync<string>("accessToken");
                 Console.WriteLine($"savedToken: {savedToken}");
                 if (string.IsNullOrWhiteSpace(savedToken))
                 {

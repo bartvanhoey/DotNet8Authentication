@@ -49,6 +49,43 @@ namespace DotNet8Auth.API.Controllers.Authentication
             await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);
             return Ok(new RegisterResponse("Success", "User created successfully!", code, userId));
         }
+        
+        // [HttpPost]
+        // [Route("register-admin")]
+        // public async Task<IActionResult> RegisterAdmin([FromBody] RegisterInputModel model)
+        // {
+        //     var userExists = await userManager.FindByNameAsync(model.Email);
+        //     if (userExists != null)
+        //         return StatusCode(Status500InternalServerError,
+        //             new LoginResponse { Status = "Error", Message = "User already exists!" });
+        //
+        //     ApplicationUser user = new ApplicationUser()
+        //     {
+        //         Email = model.Email,
+        //         SecurityStamp = NewGuid().ToString(),
+        //         UserName = model.Email
+        //     };
+        //     var result = await userManager.CreateAsync(user, model.Password);
+        //     if (!result.Succeeded)
+        //         return StatusCode(Status500InternalServerError,
+        //             new LoginResponse
+        //             {
+        //                 Status = "Error", Message = "User creation failed! Please check user details and try again."
+        //             });
+        //
+        //     if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+        //         await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+        //     if (!await roleManager.RoleExistsAsync(UserRoles.User))
+        //         await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+        //
+        //     if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+        //     {
+        //         await userManager.AddToRoleAsync(user, UserRoles.Admin);
+        //     }
+        //
+        //     return Ok(new LoginResponse { Status = "Success", Message = "User created successfully!" });
+        // }
+
 
         private static ApplicationUser? CreateUser()
         {

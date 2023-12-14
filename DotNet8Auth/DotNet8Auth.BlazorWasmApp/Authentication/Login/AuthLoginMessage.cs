@@ -5,7 +5,8 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
         UnAuthorized = 1,
         Unknown = 2,
         AccessTokenNull = 3,
-        LoginInputModelIsNull = 4,
+        RefreshTokenNull = 3,
+        ContentIsNull = 4,
     }
 
 }

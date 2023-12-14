@@ -5,6 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Net.Http.Json;
 using DotNet8Auth.Shared.Models.Authentication.Login;
+using static System.String;
+using static DotNet8Auth.BlazorWasmApp.Authentication.Login.AuthLoginMessage;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 {
@@ -18,36 +20,34 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
 
         public async Task<AuthLoginResult> Login(LoginInputModel input)
         {
-            await localStorage.RemoveItemAsync("authToken");
+            await localStorage.RemoveItemAsync("accessToken");
             
             var response = await _httpClient.PostAsJsonAsync("api/account/login", input);
             var result = await response.Content.ReadFromJsonAsync<LoginResult>();
 
-            if (result?.AccessToken == null) return new AuthLoginResult(AuthLoginMessage.AccessTokenNull); 
+            if (result == null) return new AuthLoginResult(ContentIsNull);
+            if (IsNullOrWhiteSpace(result.AccessToken)) return new AuthLoginResult(AccessTokenNull);
+            if (IsNullOrWhiteSpace(result.RefreshToken)) return new AuthLoginResult(RefreshTokenNull);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(result.AccessToken) as JwtSecurityToken;
-                var userId = jwtSecurityToken?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-
-                Console.WriteLine();
-                Console.WriteLine($"AccessToken: {result.AccessToken}");
-                Console.WriteLine($"UserId: {userId}");
-                Console.WriteLine();
+            if (!response.IsSuccessStatusCode)
+                return result.Status == "401"
+                    ? new AuthLoginResult(UnAuthorized)
+                    : new AuthLoginResult(Unknown);
             
-                await localStorage.SetItemAsync("authToken", result.AccessToken);
-                ((CustomAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticated(input.Email);
+            var jwtSecurityToken = new JwtSecurityTokenHandler().ReadToken(result.AccessToken) as JwtSecurityToken;
+            var userId = jwtSecurityToken?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.AccessToken);
-                return new AuthLoginResult();
-            }
+            Console.WriteLine();
+            Console.WriteLine($"AccessToken: {result.AccessToken}");
+            Console.WriteLine($"UserId: {userId}");
+            Console.WriteLine();
+            
+            await localStorage.SetItemAsync("accessToken", result.AccessToken);
+            await localStorage.SetItemAsync("refreshToken", result.AccessToken);
+            ((CustomAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticated(input.Email);
 
-
-            return result.Status == "401"
-                ? new AuthLoginResult(AuthLoginMessage.UnAuthorized)
-                : new AuthLoginResult(AuthLoginMessage.Unknown);
-
-
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.AccessToken); // TODO
+            return new AuthLoginResult();
         }
     }
 

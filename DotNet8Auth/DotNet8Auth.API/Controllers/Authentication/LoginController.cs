@@ -1,17 +1,19 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
-using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using static System.DateTime;
 using static System.Guid;
 using static System.Security.Claims.ClaimTypes;
 using static System.String;
 using static System.Text.Encoding;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static Microsoft.IdentityModel.Tokens.SecurityAlgorithms;
+using Convert = System.Convert;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
@@ -19,12 +21,14 @@ namespace DotNet8Auth.API.Controllers.Authentication
     [ApiController]
     public class LoginController(
         UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         IConfiguration configuration)
         : ControllerBase
     {
         [HttpPost]
         [Route("login")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
+        // [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] LoginInputModel? input)
         {
             try
@@ -34,48 +38,36 @@ namespace DotNet8Auth.API.Controllers.Authentication
 
                 var user = await userManager.FindByEmailAsync(input.Email);
                 if (user == null)
-                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Login went wrong"));
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Password or Username"));
+
+                if (IsNullOrWhiteSpace(user.Email))
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Email Empty"));
 
                 var isPasswordValid = await userManager.CheckPasswordAsync(user, input.Password);
                 if (!isPasswordValid)
-                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Password invalid"));
-
-                var authClaims = new List<Claim>
-                {
-                    new(Name, user.Email ?? throw new ArgumentNullException()),
-                    new(NameIdentifier, user.Id),
-                    new(JwtRegisteredClaimNames.Jti, NewGuid().ToString()),
-                };
-
-                var userRoles = await userManager.GetRolesAsync(user);
-                if (userRoles is { Count: > 0 })
-                {
-                    authClaims.AddRange(userRoles.Select(userRole => new Claim(Role, userRole)));
-                }
-
-                var jwtValidIssuer = configuration["Jwt:ValidIssuer"];
-                if (IsNullOrEmpty(jwtValidIssuer))
-                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid issuer"));
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Password or Username"));
                 
-                var jwtValidAudience = configuration["Jwt:ValidAudience"];
-                if (IsNullOrEmpty(jwtValidAudience))
-                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid audience"));
+                var validIssuer = configuration["Jwt:ValidIssuer"];
+                if (IsNullOrEmpty(validIssuer)) 
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
 
-                var jwtSecurityKey = configuration["Jwt:SecurityKey"];
-                if (IsNullOrEmpty(jwtSecurityKey))
-                    return StatusCode(Status500InternalServerError,
-                        new LoginResponse("Error", "Security key not configured"));
+                var validAudience = configuration["Jwt:ValidAudience"];
+                if (IsNullOrEmpty(validAudience)) 
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
 
-                var token = new JwtSecurityToken(
-                    issuer: jwtValidIssuer,
-                    audience: jwtValidAudience,
-                    expires: DateTime.UtcNow.AddHours(3),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(UTF8.GetBytes(jwtSecurityKey)), HmacSha256)
-                );
+                var securityKey = configuration["Jwt:SecurityKey"];
+                if (IsNullOrEmpty(securityKey)) 
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
+                
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiry = UtcNow.AddMinutes(1);
 
-                var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new LoginResponse(accessToken, token.ValidTo));
+                await userManager.UpdateAsync(user);
+                
+                var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
+                var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+                return Ok(new LoginResponse(accessToken, refreshToken, jwtSecurityToken.ValidTo));
             }
             catch (Exception)
             {
@@ -83,42 +75,41 @@ namespace DotNet8Auth.API.Controllers.Authentication
                     new LoginResponse(status: "Error", message: "Login went wrong"));
             }
         }
+        
+        
 
-
-        [HttpPost]
-        [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterInputModel model)
+        private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user, string jwtValidIssuer, string jwtValidAudience, string jwtSecurityKey)
         {
-            var userExists = await userManager.FindByNameAsync(model.Email);
-            if (userExists != null)
-                return StatusCode(Status500InternalServerError,
-                    new LoginResponse { Status = "Error", Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
+            var authClaims = new List<Claim>
             {
-                Email = model.Email,
-                SecurityStamp = NewGuid().ToString(),
-                UserName = model.Email
+                new(Name, user.Email ?? throw new InvalidOperationException()),
+                new(NameIdentifier, user.Id),
+                new(JwtRegisteredClaimNames.Jti, NewGuid().ToString()),
             };
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(Status500InternalServerError,
-                    new LoginResponse
-                    {
-                        Status = "Error", Message = "User creation failed! Please check user details and try again."
-                    });
 
-            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-
-            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+            var userRoles = await userManager.GetRolesAsync(user);
+            if (userRoles is { Count: > 0 })
             {
-                await userManager.AddToRoleAsync(user, UserRoles.Admin);
+                authClaims.AddRange(userRoles.Select(userRole => new Claim(Role, userRole)));
             }
 
-            return Ok(new LoginResponse { Status = "Success", Message = "User created successfully!" });
+            var token = new JwtSecurityToken(
+                issuer: jwtValidIssuer,
+                audience: jwtValidAudience,
+                expires: UtcNow.AddSeconds(60),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(UTF8.GetBytes(jwtSecurityKey)),
+                    HmacSha256)
+            );
+            return token;
+        }
+
+        private static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var generator = RandomNumberGenerator.Create();
+            generator.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

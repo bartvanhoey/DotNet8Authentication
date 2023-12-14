@@ -8,7 +8,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
         public static async Task<HttpClient> CreateAuthHttpClient(this IHttpClientFactory clientFactory, ILocalStorageService localStorageService)
         {
             var http =  clientFactory.CreateClient("ServerAPI");
-            var savedToken = await localStorageService.GetItemAsync<string>("authToken");
+            var savedToken = await localStorageService.GetItemAsync<string>("accessToken");
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
             return http;
         }
