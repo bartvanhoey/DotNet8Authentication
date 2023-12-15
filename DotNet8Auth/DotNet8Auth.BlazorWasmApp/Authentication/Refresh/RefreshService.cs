@@ -1,26 +1,19 @@
 ﻿using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using DotNet8Auth.Shared.Models.Authentication.Refresh;
-using Microsoft.AspNetCore.Components.Authorization;
 using static System.String;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Refresh
 {
-    public class RefreshService(
-        IHttpClientFactory clientFactory,
-        ILocalStorageService localStorage 
-        // AuthenticationStateProvider authenticationStateProvider
-    ) 
+    public class RefreshService(IHttpClientFactory clientFactory, ILocalStorageService localStorage)
     {
-        
-
         public async Task<AuthRefreshResult> RefreshAsync()
         {
             var accessToken = await localStorage.GetItemAsync<string>("accessToken");
             var refreshToken = await localStorage.GetItemAsync<string>("refreshToken");
-            
+
             var model = new RefreshInputModel(accessToken, refreshToken);
-        
+
             var httpClient = clientFactory.CreateClient("ServerAPI");
             var response = await httpClient.PostAsJsonAsync("api/account/refresh", model);
 
@@ -41,8 +34,8 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Refresh
 
             // Refactor to a separate Logout Service
             var revokeResponse = await httpClient.DeleteAsync("api/account/revoke");
-            await localStorage.RemoveItemAsync(accessToken);
-            await localStorage.RemoveItemAsync(refreshToken);
+            await localStorage.RemoveItemAsync("accessToken");
+            await localStorage.RemoveItemAsync("refreshToken");
             // await authenticationStateProvider.GetAuthenticationStateAsync();
             await Console.Out.WriteLineAsync($"Revoke response: {revokeResponse}");
             return new AuthRefreshResult(AuthRefreshMessage.UnSuccessful);

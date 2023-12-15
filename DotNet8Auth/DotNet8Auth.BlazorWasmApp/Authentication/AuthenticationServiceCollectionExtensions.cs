@@ -1,6 +1,7 @@
 ﻿using DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail;
 using DotNet8Auth.BlazorWasmApp.Authentication.ForgotPassword;
 using DotNet8Auth.BlazorWasmApp.Authentication.Login;
+using DotNet8Auth.BlazorWasmApp.Authentication.Logout;
 using DotNet8Auth.BlazorWasmApp.Authentication.Profile;
 using DotNet8Auth.BlazorWasmApp.Authentication.Refresh;
 using DotNet8Auth.BlazorWasmApp.Authentication.Register;
@@ -20,7 +21,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
             services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
             services.AddScoped<IProfileService, ProfileService>();
-            // services.AddScoped<IRefreshService, RefreshService>();
+            services.AddScoped<ILogoutService,LogoutService>();
         }
     }
 }

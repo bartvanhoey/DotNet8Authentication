@@ -1,36 +1,42 @@
-﻿using System.Net.Http.Headers;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Principal;
+using System.Text;
 using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
     public class CustomAuthenticationStateProvider(
-        IHttpClientFactory clientFactory,
         ILocalStorageService localStorageService)
         : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient = clientFactory.CreateClient("ServerAPI");
-
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             AuthenticationState authenticationState = new(new ClaimsPrincipal(new ClaimsIdentity()));
             try
             {
-                var savedToken = await localStorageService.GetItemAsync<string>("accessToken");
-                Console.WriteLine($"savedToken: {savedToken}");
-                if (string.IsNullOrWhiteSpace(savedToken))
+                var accessToken = await localStorageService.GetItemAsync<string>("accessToken");
+                var isTokenValid = ValidateToken(accessToken);
+                
+                Console.WriteLine($"accessToken isValid: {isTokenValid}");
+                
+                if (string.IsNullOrWhiteSpace(accessToken) || !isTokenValid)
                 {
+                    await localStorageService.RemoveItemAsync("accessToken");
+                    await localStorageService.RemoveItemAsync("refreshToken");
+
                     NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
                     return authenticationState;
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
                 authenticationState =
                     new AuthenticationState(
-                        new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+                        new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(accessToken), "jwt")));
                 NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
                 return authenticationState;
             }
@@ -105,5 +111,29 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
 
             return Convert.FromBase64String(base64);
         }
+        
+        private static bool ValidateToken(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = GetValidationParameters();
+
+            SecurityToken validatedToken;
+            IPrincipal principal = tokenHandler.ValidateToken(accessToken, validationParameters, out validatedToken);
+            return true;
+        }
+
+        private static TokenValidationParameters GetValidationParameters()
+        {
+            return new TokenValidationParameters()
+            {
+                ValidateLifetime = false, // Because there is no expiration in the generated token
+                ValidateAudience = false, // Because there is no audiance in the generated token
+                ValidateIssuer = false,   // Because there is no issuer in the generated token
+                ValidIssuer = "Sample",
+                ValidAudience = "Sample",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ByYM000OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SNM")) // The same key as the one that generate the token
+            };
+        }
+
     }
 }

@@ -1,6 +1,8 @@
+@using DotNet8Auth.BlazorWasmApp.Authentication.Logout
 @inject ILocalStorageService LocalStorage
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject ILogoutService LogoutService
 
 <div class="dropdown">
     <button @onclick="ToggleUserMenu"
@@ -41,8 +43,10 @@
 
     private async Task Logout()
     {
-        await LocalStorage.RemoveItemAsync("authToken");
-        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        await LogoutService.LogoutAsync();
+        // await LocalStorage.RemoveItemAsync("accessToken");
+        // await LocalStorage.RemoveItemAsync("refreshToken");
+        // await AuthenticationStateProvider.GetAuthenticationStateAsync();
         NavigationManager.NavigateTo("/Account/Login");
     }
 }
