@@ -43,7 +43,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
             Console.WriteLine();
             
             await localStorage.SetItemAsync("accessToken", result.AccessToken);
-            await localStorage.SetItemAsync("refreshToken", result.AccessToken);
+            await localStorage.SetItemAsync("refreshToken", result.RefreshToken);
             ((CustomAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticated(input.Email);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.AccessToken); // TODO

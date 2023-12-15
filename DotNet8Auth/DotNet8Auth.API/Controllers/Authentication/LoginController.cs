@@ -61,7 +61,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiry = UtcNow.AddMinutes(1);
+                user.RefreshTokenExpiry = UtcNow.AddHours(24);
 
                 await userManager.UpdateAsync(user);
                 

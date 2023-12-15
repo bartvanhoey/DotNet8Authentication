@@ -16,20 +16,18 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
 builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddAuthorizationCore();
 
 var serverBaseAddress = builder.Configuration["ServerUrl"] ?? "";
-
-builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
-
+builder.Services.AddTransient<CustomAuthenticationHandler>();
 builder.Services.AddHttpClient("ServerAPI",
         client =>
         {
             client.BaseAddress = new Uri(serverBaseAddress);
         })
-    .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
+    .AddHttpMessageHandler<CustomAuthenticationHandler>();
 
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
 builder.Services.AddAuthenticationServices();
 
 await builder.Build().RunAsync();

@@ -20,7 +20,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication
             services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
             services.AddScoped<IProfileService, ProfileService>();
-            services.AddScoped<IRefreshService, RefreshService>();
+            // services.AddScoped<IRefreshService, RefreshService>();
         }
     }
 }

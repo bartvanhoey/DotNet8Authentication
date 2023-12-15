@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
+using static Microsoft.IdentityModel.Tokens.SecurityAlgorithms;
+using Convert = System.Convert;
+using static System.Text.Encoding;
 using System.Text;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
@@ -58,14 +60,19 @@ namespace DotNet8Auth.API.Controllers.Authentication
             if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Refresh went wrong"));
 
-            var token = GenerateJwt(principal.Identity.Name);
+          
+            
+            var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
+            
+            
+            // var token = GenerateJwt(principal.Identity.Name);
 
             // _logger.LogInformation("Refresh succeeded");
 
             return Ok(new LoginResponse
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                ValidTo = token.ValidTo,
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+                ValidTo = jwtSecurityToken.ValidTo,
                 RefreshToken = model.RefreshToken
             });
         }
@@ -84,25 +91,52 @@ namespace DotNet8Auth.API.Controllers.Authentication
             return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
 
-        private JwtSecurityToken GenerateJwt(string username)
+        // private JwtSecurityToken GenerateJwt(string username)
+        // {
+        //     var authClaims = new List<Claim>
+        //     {
+        //         new(Name, user.Email ?? throw new InvalidOperationException()),
+        //         new(NameIdentifier, user.Id),
+        //         new(JwtRegisteredClaimNames.Jti, NewGuid().ToString()),
+        //     };
+        //
+        //     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+        //         configuration["JWT:Secret"] ?? throw new InvalidOperationException("Secret not configured")));
+        //
+        //     var token = new JwtSecurityToken(
+        //         issuer: configuration["JWT:ValidIssuer"],
+        //         audience: configuration["JWT:ValidAudience"],
+        //         expires: DateTime.UtcNow.AddSeconds(60),
+        //         claims: authClaims,
+        //         signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+        //         );
+        //
+        //     return token;
+        // }
+        
+        private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user, string jwtValidIssuer, string jwtValidAudience, string jwtSecurityKey)
         {
             var authClaims = new List<Claim>
             {
-                new(Name, username),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(Name, user.Email ?? throw new InvalidOperationException()),
+                new(NameIdentifier, user.Id),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                configuration["JWT:Secret"] ?? throw new InvalidOperationException("Secret not configured")));
+            var userRoles = await userManager.GetRolesAsync(user);
+            if (userRoles is { Count: > 0 })
+            {
+                authClaims.AddRange(userRoles.Select(userRole => new Claim(Role, userRole)));
+            }
 
             var token = new JwtSecurityToken(
-                issuer: configuration["JWT:ValidIssuer"],
-                audience: configuration["JWT:ValidAudience"],
-                expires: DateTime.UtcNow.AddSeconds(30),
+                issuer: jwtValidIssuer,
+                audience: jwtValidAudience,
+                expires: DateTime.UtcNow.AddSeconds(60),
                 claims: authClaims,
-                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-                );
-
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(UTF8.GetBytes(jwtSecurityKey)),
+                    HmacSha256)
+            );
             return token;
         }
     }
