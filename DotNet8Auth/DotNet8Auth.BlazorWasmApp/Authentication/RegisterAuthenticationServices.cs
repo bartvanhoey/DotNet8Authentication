@@ -10,7 +10,7 @@ using DotNet8Auth.BlazorWasmApp.Authentication.ResetPassword;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
-    public static class AuthenticationServiceCollectionExtensions
+    public static class RegisterAuthenticationServices
     {
         public static void AddAuthenticationServices(this IServiceCollection services)
         {

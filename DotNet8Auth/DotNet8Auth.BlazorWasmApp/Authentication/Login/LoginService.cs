@@ -21,9 +21,19 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
         public async Task<AuthLoginResult> Login(LoginInputModel input)
         {
             await localStorage.RemoveItemAsync("accessToken");
-            
-            var response = await _httpClient.PostAsJsonAsync("api/account/login", input);
-            var result = await response.Content.ReadFromJsonAsync<LoginResult>();
+
+            HttpResponseMessage? response = null;
+            LoginResult? result = null;
+            try
+            {
+                response = await _httpClient.PostAsJsonAsync("api/account/login", input);
+                result = await response.Content.ReadFromJsonAsync<LoginResult>();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return new AuthLoginResult(ApiDown);
+            }
 
             if (result == null) return new AuthLoginResult(ContentIsNull);
             if (IsNullOrWhiteSpace(result.AccessToken)) return new AuthLoginResult(AccessTokenNull);

@@ -7,6 +7,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
         AccessTokenNull = 3,
         RefreshTokenNull = 3,
         ContentIsNull = 4,
+        ApiDown = 5,
     }
 
 }

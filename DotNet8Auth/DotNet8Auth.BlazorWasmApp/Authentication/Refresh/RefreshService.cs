@@ -1,11 +1,12 @@
 ﻿using System.Net.Http.Json;
 using Blazored.LocalStorage;
+using DotNet8Auth.BlazorWasmApp.Authentication.Logout;
 using DotNet8Auth.Shared.Models.Authentication.Refresh;
 using static System.String;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Refresh
 {
-    public class RefreshService(IHttpClientFactory clientFactory, ILocalStorageService localStorage)
+    public class RefreshService(IHttpClientFactory clientFactory, ILocalStorageService localStorage, ILogoutService logoutService) 
     {
         public async Task<AuthRefreshResult> RefreshAsync()
         {
@@ -32,12 +33,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Refresh
                 return new AuthRefreshResult();
             }
 
-            // Refactor to a separate Logout Service
-            var revokeResponse = await httpClient.DeleteAsync("api/account/revoke");
-            await localStorage.RemoveItemAsync("accessToken");
-            await localStorage.RemoveItemAsync("refreshToken");
-            // await authenticationStateProvider.GetAuthenticationStateAsync();
-            await Console.Out.WriteLineAsync($"Revoke response: {revokeResponse}");
+            await logoutService.LogoutAsync();
             return new AuthRefreshResult(AuthRefreshMessage.UnSuccessful);
         }
     }

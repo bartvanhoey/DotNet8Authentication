@@ -1,16 +1,16 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
+using DotNet8Auth.BlazorWasmApp.Authentication.Logout;
 using DotNet8Auth.BlazorWasmApp.Authentication.Refresh;
-using Microsoft.AspNetCore.Components.Authorization;
 using static System.String;
 
-namespace DotNet8Auth.BlazorWasmApp
+namespace DotNet8Auth.BlazorWasmApp.Authentication
 {
     public class CustomAuthenticationHandler(
         IConfiguration configuration,
         ILocalStorageService localStorageService,    
-        IHttpClientFactory clientFactory 
+        IHttpClientFactory clientFactory, ILogoutService logoutService
         )
         : DelegatingHandler //AuthorizationMessageHandler   
     {
@@ -42,7 +42,7 @@ namespace DotNet8Auth.BlazorWasmApp
             try
             {
                 _refreshing = true;
-                var refreshService = new RefreshService(clientFactory, localStorageService);
+                var refreshService = new RefreshService(clientFactory, localStorageService, logoutService);
                 var refreshResult = await refreshService.RefreshAsync();
                 if (!refreshResult.Succeeded) return response;
                 

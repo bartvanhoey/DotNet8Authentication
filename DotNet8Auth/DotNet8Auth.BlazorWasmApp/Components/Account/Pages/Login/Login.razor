@@ -99,7 +99,7 @@
         }
         else
         {
-            _errorMessage = "Error: Username or Password wrong!";
+            _errorMessage = result.Message == AuthLoginMessage.ApiDown ? "Error: Something went wrong!" : "Error: Username or Password wrong!";
         }
 
 

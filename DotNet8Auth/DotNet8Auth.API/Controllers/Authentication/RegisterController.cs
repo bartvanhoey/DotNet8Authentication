@@ -13,13 +13,19 @@ namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
     [Route("api/Account")]
-    public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender)
+    public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration)
         : ControllerBase
     {
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model)
         {
+            var origin = HttpContext.Request.Headers.Origin;
+            
+            var validAudience = configuration["Jwt:ValidAudience"];
+            if (IsNullOrEmpty(validAudience))
+                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Issuer"));
+            
             if (IsNullOrEmpty(model.CallbackUrl)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty CallbackUrl"));
             if (IsNullOrEmpty(model.Email)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Email"));
             if (IsNullOrEmpty(model.Password)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Password"));
