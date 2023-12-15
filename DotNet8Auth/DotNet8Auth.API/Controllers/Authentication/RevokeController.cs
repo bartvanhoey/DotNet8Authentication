@@ -6,7 +6,7 @@ using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
-    [Route("api/Account")]
+    [Route("api/account")]
     [ApiController]
     public class RevokeController(UserManager<ApplicationUser> userManager)
         : ControllerBase

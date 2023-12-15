@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
-    [Route("api/Account")]
+    [Route("api/account")]
     public class ConfirmEmailController(UserManager<ApplicationUser> userManager) : ControllerBase
     {
         [HttpPost]

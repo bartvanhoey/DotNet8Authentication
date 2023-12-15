@@ -5,11 +5,13 @@ using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using static System.String;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
-    [Route("api/Account")]
+    [Route("api/account")]
     public class ResendEmailConfirmationController(
         UserManager<ApplicationUser> userManager,
         IEmailSender<ApplicationUser> emailSender,
@@ -20,20 +22,20 @@ namespace DotNet8Auth.API.Controllers.Authentication
         public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationInputModel model)
         {
             var validAudience = configuration["Jwt:ValidAudience"];
-            if (string.IsNullOrEmpty(validAudience))
-                return StatusCode(StatusCodes.Status500InternalServerError,
+            if (IsNullOrEmpty(validAudience))
+                return StatusCode(Status500InternalServerError,
                     new ResendEmailConfirmationResponse("Error", "Invalid Audience"));
 
             var origin = HttpContext.Request.Headers.Origin;
             if (validAudience != origin)
-                return StatusCode(StatusCodes.Status500InternalServerError,
+                return StatusCode(Status500InternalServerError,
                     new ResendEmailConfirmationResponse("Error", "Invalid Audience"));
 
             var callbackUrl = $"{origin}/Account/ConfirmEmail";
 
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
-                return StatusCode(StatusCodes.Status500InternalServerError,
+                return StatusCode(Status500InternalServerError,
                     new ResendEmailConfirmationResponse("Error", "User could not be found"));
 
             var userId = await userManager.GetUserIdAsync(user);

@@ -12,7 +12,7 @@ using static Microsoft.AspNetCore.Http.StatusCodes;
 namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
-    [Route("api/Account")]
+    [Route("api/account")]
     public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration)
         : ControllerBase
     {

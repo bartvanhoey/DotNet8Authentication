@@ -11,7 +11,7 @@ using Convert = System.Convert;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
-    [Route("api/Account")]
+    [Route("api/account")]
     [ApiController]
     public class LoginController(
         UserManager<ApplicationUser> userManager,

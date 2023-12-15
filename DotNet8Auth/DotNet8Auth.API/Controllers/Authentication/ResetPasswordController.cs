@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
-    [Route("api/Account")]
+    [Route("api/account")]
     public class ResetPasswordController(UserManager<ApplicationUser> userManager) : ControllerBase
     {
         [HttpPost]
