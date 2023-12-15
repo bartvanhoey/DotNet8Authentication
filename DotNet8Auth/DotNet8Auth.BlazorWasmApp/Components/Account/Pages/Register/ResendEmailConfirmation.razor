@@ -1,9 +1,7 @@
 @page "/Account/ResendEmailConfirmation"
 @using DotNet8Auth.BlazorWasmApp.Authentication.ResendEmailConfirmation
 @using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation
-
 @inject IResendEmailConfirmationService ResendEmailConfirmationService
-@inject NavigationManager NavigationManager
 
 <PageTitle>Resend Email Confirmation</PageTitle>
 
@@ -34,8 +32,6 @@
 
     private async Task OnValidSubmitAsync()
     {
-        Input.CallbackUrl = NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri;
-
         var result = await ResendEmailConfirmationService.ResendEmailConfirmationAsync(Input);
         if (result.Succeeded)
         {

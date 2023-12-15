@@ -57,7 +57,6 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
-        Input.CallbackUrl = NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri;
         var result = await RegisterService.RegisterAsync(Input);
         if (result.Succeeded)
         {

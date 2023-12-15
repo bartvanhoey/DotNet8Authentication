@@ -20,13 +20,16 @@ namespace DotNet8Auth.API.Controllers.Authentication
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model)
         {
-            var origin = HttpContext.Request.Headers.Origin;
-            
             var validAudience = configuration["Jwt:ValidAudience"];
             if (IsNullOrEmpty(validAudience))
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Issuer"));
+                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+
+            var origin = HttpContext.Request.Headers.Origin;
+            if (validAudience != origin)
+                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+
+            var callbackUrl = $"{origin}/Account/ConfirmEmail";
             
-            if (IsNullOrEmpty(model.CallbackUrl)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty CallbackUrl"));
             if (IsNullOrEmpty(model.Email)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Email"));
             if (IsNullOrEmpty(model.Password)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Password"));
             
@@ -49,7 +52,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
             var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             
-            var confirmationLink = model.CallbackUrl.AddUrlParameters(new Dictionary<string, object?>
+            var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
                 { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
 
             await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);

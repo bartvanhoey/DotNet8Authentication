@@ -19,11 +19,5 @@ namespace DotNet8Auth.Shared.Models.Authentication.Register
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
-        
-        // [Required]
-        // [Url]
-        public string CallbackUrl { get; set; } = "";
-
-
     }
 }

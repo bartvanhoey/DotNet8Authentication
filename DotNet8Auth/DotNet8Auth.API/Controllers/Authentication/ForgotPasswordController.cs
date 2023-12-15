@@ -14,12 +14,22 @@ namespace DotNet8Auth.API.Controllers.Authentication
     [Route("api/Account")]
     public class ForgotPasswordController(
         UserManager<ApplicationUser> userManager,
-        IEmailSender<ApplicationUser> emailSender) : ControllerBase
+        IEmailSender<ApplicationUser> emailSender, IConfiguration configuration) : ControllerBase
     {
         [HttpPost]
         [Route("forgot-password")]
         public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationInputModel input)
         {
+            var validAudience = configuration["Jwt:ValidAudience"];
+            if (string.IsNullOrEmpty(validAudience))
+                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", "Invalid Audience"));
+
+            var origin = HttpContext.Request.Headers.Origin;
+            if (validAudience != origin)
+                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", "Invalid Audience"));
+                
+            var callbackUrl = $"{origin}/Account/ResetPassword";
+            
             var user = await userManager.FindByEmailAsync(input.Email);
             if (user == null)
                 return StatusCode(Status500InternalServerError,
@@ -31,7 +41,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
             
             var code = await userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var resetLink = input.CallbackUrl.AddUrlParameters(new Dictionary<string, object?> { ["code"] = code });
+            var resetLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?> { ["code"] = code });
 
             await emailSender.SendPasswordResetLinkAsync(user, input.Email, resetLink);
 

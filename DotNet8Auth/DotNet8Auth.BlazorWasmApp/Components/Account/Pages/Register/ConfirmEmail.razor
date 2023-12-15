@@ -11,17 +11,16 @@
 <div class="row">
     <div class="col-md-6">
         <StatusMessage Message="@Message"/>
-        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">
-            Click the button to
-            confirm your email address
-        </button>
+        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">Confirm Email Address</button>
     </div>
 </div>
 
 
 @code {
+
     // ReSharper disable once UnusedAutoPropertyAccessor.Local
     [SupplyParameterFromQuery] private string? UserId { get; set; }
+
     // ReSharper disable once UnusedAutoPropertyAccessor.Local
     [SupplyParameterFromQuery] private string? Code { get; set; }
     private string? Message { get; set; }
