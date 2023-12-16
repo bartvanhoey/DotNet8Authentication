@@ -7,66 +7,93 @@ using DotNet8Auth.Shared.Models.Authentication.Refresh;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using static System.String;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
     [Route("api/account")]
     [ApiController]
-    public class RefreshController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public class RefreshController(
+        UserManager<ApplicationUser> userManager,
+        IConfiguration configuration,
+        ILogger<RefreshController> logger)
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
         : AuthControllerBase(userManager)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
     {
-        // private readonly ILogger<RefreshController> _logger;
-
-        // _logger = logger;
-
-
         [HttpPost("Refresh")]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status500InternalServerError)]
         public async Task<IActionResult> Refresh([FromBody] RefreshInputModel model)
         {
-            // _logger.LogInformation("Refresh called");
-            
-            if (string.IsNullOrWhiteSpace(model.AccessToken))
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "AccessToken Empty"));
-            
-            if (string.IsNullOrWhiteSpace(model.RefreshToken))
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "RefreshToken Empty"));
-            
-            var validIssuer = configuration["Jwt:ValidIssuer"];
-            if (string.IsNullOrEmpty(validIssuer)) 
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
-
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (string.IsNullOrEmpty(validAudience)) 
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
-
-            var securityKey = configuration["Jwt:SecurityKey"];
-            if (string.IsNullOrEmpty(securityKey)) 
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
-            
-            var principal = GetPrincipalFromExpiredToken(model.AccessToken, securityKey, validIssuer, validAudience);
-            if (principal?.Identity?.Name is null)
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Principal null"));
-
-            var user = await userManager.FindByNameAsync(principal.Identity.Name);
-            if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Refresh went wrong"));
-            
-            var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
-
-            // _logger.LogInformation("Refresh succeeded");
-
-            return Ok(new LoginResponse
+            try
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                ValidTo = jwtSecurityToken.ValidTo,
-                RefreshToken = model.RefreshToken
-            });
+                if (IsNullOrWhiteSpace(model.AccessToken))
+                {
+                    logger.LogError($"{nameof(Refresh)}: access token is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "AccessToken Empty"));
+                }
+
+                if (IsNullOrWhiteSpace(model.RefreshToken))
+                {
+                    logger.LogError($"{nameof(Refresh)}: refresh token is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "RefreshToken Empty"));
+                }
+
+                var validIssuer = configuration["Jwt:ValidIssuer"];
+                if (IsNullOrEmpty(validIssuer))
+                {
+                    logger.LogError($"{nameof(Refresh)}: valid issuer is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
+                }
+
+                var validAudience = configuration["Jwt:ValidAudience"];
+                if (IsNullOrEmpty(validAudience))
+                {
+                    logger.LogError($"{nameof(Refresh)}: valid audience is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
+                }
+
+                var securityKey = configuration["Jwt:SecurityKey"];
+                if (IsNullOrEmpty(securityKey))
+                {
+                    logger.LogError($"{nameof(Refresh)}: security key is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
+                }
+
+                var principal = GetPrincipalFromExpiredToken(model.AccessToken, securityKey, validIssuer, validAudience);
+                if (principal?.Identity?.Name is null)
+                {
+                    logger.LogError($"{nameof(Refresh)}: principal is null");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Principal null"));
+                }
+
+                var user = await userManager.FindByNameAsync(principal.Identity.Name);
+                if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    logger.LogError($"{nameof(Refresh)}: something wrong with refresh token");
+                    return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Refresh went wrong"));
+                }
+
+                var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
+
+                return Ok(new LoginResponse
+                {
+                    AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+                    ValidTo = jwtSecurityToken.ValidTo,
+                    RefreshToken = model.RefreshToken
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, nameof(Refresh));
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Refresh went wrong"));
+            }
         }
 
-        private static ClaimsPrincipal? GetPrincipalFromExpiredToken (string token, string securityKey, string validIssuer, string validAudience) 
+        private static ClaimsPrincipal? GetPrincipalFromExpiredToken(string token, string securityKey,
+            string validIssuer, string validAudience)
         {
             var validation = new TokenValidationParameters
             {

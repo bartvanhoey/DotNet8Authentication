@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using DotNet8Auth.Shared.Models.Authentication.Profile;
+using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
 using static DotNet8Auth.BlazorWasmApp.Authentication.Profile.AuthSetPhoneNumberInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile

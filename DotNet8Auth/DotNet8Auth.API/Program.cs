@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography.Xml;
 using DotNet8Auth.API;
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.API.Data;
@@ -9,93 +9,127 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
 using static System.Console;
 using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
+using ILogger = Serilog.ILogger;
+
+// ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
 var builder = WebApplication.CreateBuilder(args);
-
-// 
 builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.MSSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+        sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
+    .CreateLogger();
+
+builder.Host.UseSerilog(logger);
+
+Serilog.Debugging.SelfLog.Enable(msg =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    Debug.Print(msg);
+    Debugger.Break();
+});
+
+try
+{
+    Log.Information("Starting the web host");
+    // Add services to the container.
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
-        In= ParameterLocation.Header,
-        Description = "Please enter 'Bearer [access-token] in the Value input field'",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-    
-    var scheme = new OpenApiSecurityScheme
-    {
-        Reference = new OpenApiReference
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
         {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement {{scheme , Array.Empty<string>()}});
-});
+            In = ParameterLocation.Header,
+            Description = "Please enter 'Bearer [access-token] in the Value input field'",
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey
+        });
 
-// Setup DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+        var scheme = new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        };
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement { { scheme, Array.Empty<string>() } });
+    });
 
-// Setup Identity
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
+    // Setup DbContext
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                           throw new InvalidOperationException("Connection string not found");
+    builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
+    // Setup Identity
+    builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddSignInManager()
+        .AddDefaultTokenProviders();
 
-builder.Services.SetupEmailClient(builder.Configuration);
+    builder.Services.SetupEmailClient(builder.Configuration);
 
-// builder.Services.AddScoped<IdentityUserAccessor>();
+    // builder.Services.AddScoped<IdentityUserAccessor>();
+    builder.Services.AddCorsPolicy();
 
-builder.Services.AddCorsPolicy();
+    // Adding Authentication
+    var validAudience = builder.Configuration["Jwt:ValidAudience"]
+                        ?? throw new InvalidOperationException("'Audience' not found.");
 
-// Adding Authentication
-var validAudience = builder.Configuration["Jwt:ValidAudience"];
-if(string.IsNullOrWhiteSpace(validAudience)) throw new InvalidOperationException("'Audience' not found.");
+    var validIssuer = builder.Configuration["Jwt:ValidIssuer"]
+                      ?? throw new InvalidOperationException("'Issuer' not found.");
 
-var validIssuer = builder.Configuration["Jwt:ValidIssuer"];
-if(string.IsNullOrWhiteSpace(validIssuer)) throw new InvalidOperationException("'Issuer' not found.");
+    var securityKey = builder.Configuration["Jwt:SecurityKey"]
+                      ?? throw new InvalidOperationException("'SecurityKey' not found.");
 
-var securityKey = builder.Configuration["Jwt:SecurityKey"] ?? throw new InvalidOperationException("'SecurityKey' not found.");
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = AuthenticationScheme;
-    options.DefaultChallengeScheme = AuthenticationScheme;
-    options.DefaultScheme = AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters
+    builder.Services.AddAuthentication(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidAudience = validAudience,
-        ValidIssuer = validIssuer,
-        IssuerSigningKey = new SymmetricSecurityKey(UTF8.GetBytes(securityKey)),
-        ClockSkew = new TimeSpan(0,0,5)
-    };
-    options.Events = new JwtBearerEvents
+        options.DefaultAuthenticateScheme = AuthenticationScheme;
+        options.DefaultChallengeScheme = AuthenticationScheme;
+        options.DefaultScheme = AuthenticationScheme;
+    }).AddJwtBearer(options =>
     {
-        OnChallenge = ctx => LogAttempt(ctx.Request.Headers, "OnChallenge: 401 NotAuthorized "),
-        OnTokenValidated = ctx => LogAttempt(ctx.Request.Headers, "OnTokenValidated: Authorized")
-    };
-});
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = validAudience,
+            ValidIssuer = validIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(UTF8.GetBytes(securityKey)),
+            ClockSkew = new TimeSpan(0, 0, 5)
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = ctx => LogAttempt(ctx.Request.Headers, "OnChallenge: 401 NotAuthorized", Log.Logger),
+            OnTokenValidated = ctx => LogAttempt(ctx.Request.Headers, "OnTokenValidated: Authorized", Log.Logger)
+        };
+    });
+    Log.Information("Services registered");
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 var app = builder.Build();
+
+// app.UseSerilogRequestLogging(); Logs all http requests
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -119,23 +153,24 @@ app.MapAdditionalIdentityEndpoints();
 
 app.Run();
 
-Task LogAttempt(IHeaderDictionary headers, string eventType)
+Task LogAttempt(IHeaderDictionary headers, string eventType, ILogger logger)
 {
-    // var logger = loggerFactory.CreateLogger<Program>();
-
     var authorizationHeader = headers.Authorization.FirstOrDefault();
     if (authorizationHeader is null)
+    {
         Out.WriteLine($"{eventType}. JWT not present");
-        // logger.LogInformation($"{eventType}. JWT not present");
+        logger.Information($"{eventType}. JWT not present");
+    }
     else
     {
         var jwtString = authorizationHeader.Substring("Bearer ".Length);
         var jwt = new JwtSecurityToken(jwtString);
 
-        // logger.LogInformation($"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
-        Out.WriteLine($"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
+        logger.Information(
+            $"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
+        Out.WriteLine(
+            $"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
     }
 
     return CompletedTask;
 }
-

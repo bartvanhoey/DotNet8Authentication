@@ -15,8 +15,10 @@ namespace DotNet8Auth.API.Controllers.Authentication
     [ApiController]
     public class LoginController(
         UserManager<ApplicationUser> userManager,
-        IConfiguration configuration)
+        IConfiguration configuration, ILogger<LoginController> logger)
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
         : AuthControllerBase(userManager)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
     {
         [HttpPost]
         [Route("login")]
@@ -27,32 +29,53 @@ namespace DotNet8Auth.API.Controllers.Authentication
             try
             {
                 if (input is null)
+                {
+                    logger.LogError($"{nameof(Login)}: input is null");
                     return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Login went wrong"));
+                }
 
                 var user = await userManager.FindByEmailAsync(input.Email);
                 if (user == null)
+                {
+                    logger.LogError($"{nameof(Login)}: user is null");
                     return StatusCode(Status500InternalServerError,
                         new LoginResponse("Error", "Invalid Password or Username"));
+                }
 
                 if (IsNullOrWhiteSpace(user.Email))
+                {
+                    logger.LogError($"{nameof(Login)}: user email is null");
                     return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Email Empty"));
+                }
 
                 var isPasswordValid = await userManager.CheckPasswordAsync(user, input.Password);
                 if (!isPasswordValid)
+                {
+                    logger.LogError($"{nameof(Login)}: password is invalid");
                     return StatusCode(Status500InternalServerError,
                         new LoginResponse("Error", "Invalid Password or Username"));
+                }
 
                 var validIssuer = configuration["Jwt:ValidIssuer"];
                 if (IsNullOrEmpty(validIssuer))
+                {
+                    logger.LogError($"{nameof(Login)}: issuer is null");
                     return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
+                }
 
                 var validAudience = configuration["Jwt:ValidAudience"];
                 if (IsNullOrEmpty(validAudience))
+                {
+                    logger.LogError($"{nameof(Login)}: audience is null");
                     return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
+                }
 
                 var securityKey = configuration["Jwt:SecurityKey"];
                 if (IsNullOrEmpty(securityKey))
+                {
+                    logger.LogError($"{nameof(Login)}: security key is null");
                     return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
+                }
 
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
@@ -64,8 +87,9 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
                 return Ok(new LoginResponse(accessToken, refreshToken, jwtSecurityToken.ValidTo));
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                logger.LogError(exception, $"{nameof(Login)}");
                 return StatusCode(Status500InternalServerError,
                     new LoginResponse(status: "Error", message: "Login went wrong"));
             }

@@ -31,6 +31,7 @@ namespace DotNet8Auth.API
             // else
             //     services.AddSingleton<IEmailSender<ApplicationUser>, IdentityDevelopmentEmailSender>();
 
+            // TODO Do not forget to setup correctly in production
             services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
         }
     }

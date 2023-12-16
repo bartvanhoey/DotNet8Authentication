@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DotNet8Auth.Shared.Models.Authentication.Profile
+namespace DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber
 {
     public class SetPhoneNumberInputModel
     {

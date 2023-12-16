@@ -10,8 +10,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
     [Route("api/account")]
     [ApiController]
     public class ProfileController(
-        UserManager<ApplicationUser> userManager,
-        IConfiguration configuration)
+        UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger)
         : ControllerBase
     {
         [Authorize]
@@ -19,33 +18,24 @@ namespace DotNet8Auth.API.Controllers.Authentication
         [Route("get-profile")]
         public async Task<IActionResult> GetProfile(string email)
         {
-            var user = await userManager.FindByEmailAsync(email);
-            if (user == null)
-                return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", "User retrieval went wrong"));
-
-            var userName = await userManager.GetUserNameAsync(user);
-            var phoneNumber = await userManager.GetPhoneNumberAsync(user);
-
-            return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
+            try
+            {
+                var user = await userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong ");
+                    return StatusCode(Status500InternalServerError,
+                        new ProfileResponse("Error", "User retrieval went wrong"));
+                }
+                var userName = await userManager.GetUserNameAsync(user);
+                var phoneNumber = await userManager.GetPhoneNumberAsync(user);
+                return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, nameof(GetProfile));
+                return StatusCode(Status500InternalServerError, new ProfileResponse("Error", "An exception occurred")); 
+            }
         }
-        
-        [Authorize]
-        [HttpPost]
-        [Route("set-phone-number")]
-        public async Task<IActionResult> SetPhoneNumber([FromBody] SetPhoneNumberInputModel model)
-        {
-            var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-                return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", "User retrieval went wrong"));
-
-            var result = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
-            return result.Succeeded
-                ? Ok(new ProfileResponse("Success", userName: user.UserName, phoneNumber: model.PhoneNumber))
-                : StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", "Update UserProfile went wrong"));
-        }
-        
     }
 }
