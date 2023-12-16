@@ -23,10 +23,13 @@ using ILogger = Serilog.ILogger;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                       throw new InvalidOperationException("Connection string not found");
+
 var logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .WriteTo.MSSqlServer(
-        connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+        connectionString: connectionString,
         sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
     .CreateLogger();
 
@@ -41,9 +44,11 @@ Serilog.Debugging.SelfLog.Enable(msg =>
 try
 {
     Log.Information("Starting the web host");
+    
     // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
+    
     builder.Services.AddSwaggerGen(options =>
     {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -66,8 +71,6 @@ try
     });
 
     // Setup DbContext
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                           throw new InvalidOperationException("Connection string not found");
     builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
     // Setup Identity
@@ -79,7 +82,6 @@ try
 
     builder.Services.SetupEmailClient(builder.Configuration);
 
-    // builder.Services.AddScoped<IdentityUserAccessor>();
     builder.Services.AddCorsPolicy();
 
     // Adding Authentication
@@ -118,9 +120,9 @@ try
     });
     Log.Information("Services registered");
 }
-catch (Exception ex)
+catch (Exception exception)
 {
-    Log.Fatal(ex, "host terminated unexpectedly");
+    Log.Fatal(exception, "host terminated unexpectedly");
 }
 finally
 {

@@ -18,8 +18,6 @@ namespace DotNet8Auth.API.Services.Email
             emailSender = new ProductionEmailSender(googleEmail, googleAppPassword);
         }
 
-
-
         public Task SendConfirmationLinkAsync(ApplicationUser user, string email, string confirmationLink) =>
             emailSender.SendEmailAsync(email, "Confirm your email", $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>.");
 
