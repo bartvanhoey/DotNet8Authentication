@@ -8,33 +8,32 @@ namespace DotNet8Auth.API.Controllers.Authentication
 {
     [Route("api/account")]
     [ApiController]
-    public class RevokeController(UserManager<ApplicationUser> userManager)
+    public class RevokeController(UserManager<ApplicationUser> userManager, ILogger<RevokeController> logger)
         : ControllerBase
     {
-        // private readonly ILogger<RefreshController> _logger;
-
-        // _logger = logger;
-
         [Authorize]
         [HttpDelete("Revoke")]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status401Unauthorized)]
         public async Task<IActionResult> Revoke()
         {
-            // _logger.LogInformation("Revoke called");
+            try
+            {
+                var username = HttpContext.User.Identity?.Name;
+                if (username is null) return Unauthorized();
 
-            var username = HttpContext.User.Identity?.Name;
-            if (username is null) return Unauthorized();
+                var user = await userManager.FindByNameAsync(username);
+                if (user is null) return Unauthorized();
 
-            var user = await userManager.FindByNameAsync(username);
-            if (user is null) return Unauthorized();
-
-            user.RefreshToken = null;
-            await userManager.UpdateAsync(user);
-
-            // _logger.LogInformation("Revoke succeeded");
-
-            return Ok();
+                user.RefreshToken = null;
+                await userManager.UpdateAsync(user);
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, nameof(Revoke));
+                return Ok();
+            }
         }
     }
 }
