@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using DotNet8Auth.BlazorWasmApp;
-using DotNet8Auth.BlazorWasmApp.Authentication;
+using DotNet8Auth.BlazorWasmApp.Services.Authentication;
+using DotNet8Auth.BlazorWasmApp.Services.Logging;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -28,6 +29,7 @@ builder.Services.AddHttpClient("ServerAPI",
         })
     .AddHttpMessageHandler<CustomAuthenticationHandler>();
 
+builder.Services.AddScoped<ISerilogService, SerilogService>();
 builder.Services.AddAuthenticationServices();
 
 await builder.Build().RunAsync();

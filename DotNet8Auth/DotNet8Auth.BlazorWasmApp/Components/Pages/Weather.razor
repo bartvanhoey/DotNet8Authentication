@@ -1,5 +1,9 @@
 ﻿@page "/weather"
+@using DotNet8Auth.BlazorWasmApp.Services.Logging
+@using DotNet8Auth.Shared.Models.Logging
 @inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject ISerilogService SerilogService
 
 <PageTitle>Weather</PageTitle>
 
@@ -9,29 +13,31 @@
 
 @if (forecasts == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
+        @foreach (var forecast in forecasts)
+        {
+            <tr>
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td>
+            </tr>
+        }
         </tbody>
     </table>
 }
@@ -41,7 +47,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        var result = await SerilogService.CreateLogEntry(new CreateLogEntryInputModel() { Level = "warning", Message = "Could not get weather" });
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        forecasts = await http.GetFromJsonAsync<WeatherForecast[]>("api/weatherforecast");
     }
 
     public class WeatherForecast
@@ -54,4 +62,5 @@ else
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
+
 }
