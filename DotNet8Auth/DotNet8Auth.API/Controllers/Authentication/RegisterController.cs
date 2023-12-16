@@ -13,50 +13,80 @@ namespace DotNet8Auth.API.Controllers.Authentication
 {
     [ApiController]
     [Route("api/account")]
-    public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration)
+    public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger)
         : ControllerBase
     {
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model)
         {
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (IsNullOrEmpty(validAudience))
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+            try
+            {
+                var validAudience = configuration["Jwt:ValidAudience"];
+                if (IsNullOrEmpty(validAudience))
+                {
+                    logger.LogError($"{nameof(Register)}: audience is null");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+                }
 
-            var origin = HttpContext.Request.Headers.Origin;
-            if (validAudience != origin)
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+                var origin = HttpContext.Request.Headers.Origin;
+                if (validAudience != origin)
+                {
+                    logger.LogError($"{nameof(Register)}: origin is wrong");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
+                }
 
-            var callbackUrl = $"{origin}/Account/ConfirmEmail";
-            
-            if (IsNullOrEmpty(model.Email)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Email"));
-            if (IsNullOrEmpty(model.Password)) return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Password"));
-            
-            var user = await userManager.FindByEmailAsync(model.Email);
-            if (user != null)
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User already exists!"));
+                var callbackUrl = $"{origin}/Account/ConfirmEmail";
+                if (IsNullOrEmpty(model.Email))
+                {
+                    logger.LogError($"{nameof(Register)}: email is null");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Email"));
+                }
 
-            var newUser = CreateUser();
-            if (newUser == null)
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "CreateUser failed"));
-            
-            newUser.Email = model.Email;
-            newUser.UserName = model.Email;
+                if (IsNullOrEmpty(model.Password))
+                {
+                    logger.LogError($"{nameof(Register)}: password is null");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Password"));
+                }
 
-            var result = await userManager.CreateAsync(newUser, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User creation failed"));
-            
-            var userId = await userManager.GetUserIdAsync(newUser);
-            var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            
-            var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
-                { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    logger.LogError($"{nameof(Register)}: user is null");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User already exists!"));
+                }
 
-            await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);
-            return Ok(new RegisterResponse("Success", "User created successfully!", code, userId));
+                var newUser = CreateUser();
+                if (newUser == null)
+                {
+                    logger.LogError($"{nameof(Register)}: new user is null");
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "CreateUser failed"));
+                }
+
+                newUser.Email = model.Email;
+                newUser.UserName = model.Email;
+
+                var result = await userManager.CreateAsync(newUser, model.Password);
+                if (!result.Succeeded)
+                {
+                    return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User creation failed"));
+                }
+
+                var userId = await userManager.GetUserIdAsync(newUser);
+                var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            
+                var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
+                    { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
+
+                await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);
+                return Ok(new RegisterResponse("Success", "User created successfully!", code, userId));
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, nameof(Register));
+                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Something went wrong"));
+            }
         }
         
         // [HttpPost]
