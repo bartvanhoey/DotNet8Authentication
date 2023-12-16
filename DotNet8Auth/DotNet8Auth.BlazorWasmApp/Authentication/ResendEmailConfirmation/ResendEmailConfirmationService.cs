@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
 using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;
+using static DotNet8Auth.BlazorWasmApp.Authentication.ResendEmailConfirmation.AuthResendConfirmEmailConfirmationInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ResendEmailConfirmation
 {
@@ -10,13 +11,21 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ResendEmailConfirmation
         public async Task<AuthResendEmailConfirmationResult> ResendEmailConfirmationAsync(
             ResendEmailConfirmationInputModel input)
         {
-            var response = await _http.PostAsJsonAsync("api/account/resend-email-confirmation", input);
-            var result = await response.Content.ReadFromJsonAsync<ConfirmEmailResult>();
+                ConfirmEmailResult? result;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/account/resend-email-confirmation", input);
+                result = await response.Content.ReadFromJsonAsync<ConfirmEmailResult>();
+            }
+            catch (Exception )
+            {
+                // TODO logging
+                return new AuthResendEmailConfirmationResult(SomethingWentWrong);
+            }
 
             return result is { Succeeded: true }
                 ? new AuthResendEmailConfirmationResult()
-                : new AuthResendEmailConfirmationResult(AuthResendConfirmEmailConfirmationInfo
-                    .ResendEmailConfirmationUnsuccessful);
+                : new AuthResendEmailConfirmationResult(ResendEmailConfirmationUnsuccessful);
         }
     }
 }

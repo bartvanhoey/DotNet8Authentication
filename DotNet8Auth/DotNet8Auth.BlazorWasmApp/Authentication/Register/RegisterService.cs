@@ -10,8 +10,16 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
 
         public async Task<AuthRegisterResult> RegisterAsync(RegisterInputModel input)
         {
-            var response = await _http.PostAsJsonAsync("api/account/register", input);
-            var result = await response.Content.ReadFromJsonAsync<RegisterResult>();
+            RegisterResult? result;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/account/register", input);
+                result = await response.Content.ReadFromJsonAsync<RegisterResult>();
+            }
+            catch (Exception)
+            {
+                return new AuthRegisterResult(SomethingWentWrong);
+            }
 
             return result is { Succeeded: true }
                 ? new AuthRegisterResult()

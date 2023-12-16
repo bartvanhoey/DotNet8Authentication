@@ -10,8 +10,17 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
 
         public async Task<AuthConfirmEmailResult> ConfirmEmailAsync(ConfirmEmailInputModel input)
         {
-            var response = await _http.PostAsJsonAsync("api/account/confirm-email",input);
-            var result = await response.Content.ReadFromJsonAsync<ConfirmEmailResult>();
+            ConfirmEmailResult? result;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/account/confirm-email",input);
+                result = await response.Content.ReadFromJsonAsync<ConfirmEmailResult>();
+            }
+            catch (Exception)
+            {
+                // TODO logging
+                return  new AuthConfirmEmailResult(SomethingWentWrong);    
+            }
 
             return result is { Succeeded: true }
                 ? new AuthConfirmEmailResult()

@@ -16,9 +16,18 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Refresh
             var model = new RefreshInputModel(accessToken, refreshToken);
 
             var httpClient = clientFactory.CreateClient("ServerAPI");
-            var response = await httpClient.PostAsJsonAsync("api/account/refresh", model);
+            
+            HttpResponseMessage? response = null;
+            try
+            {
+                response = await httpClient.PostAsJsonAsync("api/account/refresh", model);
+            }
+            catch (Exception)
+            {
+                // TODO logging
+            }
 
-            if (response.IsSuccessStatusCode)
+            if (response is { IsSuccessStatusCode: true })
             {
                 var result = await response.Content.ReadFromJsonAsync<RefreshResult>();
                 if (result == null) return new AuthRefreshResult(AuthRefreshMessage.ContentIsNull);

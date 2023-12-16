@@ -9,14 +9,31 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Profile
         private readonly HttpClient _http = clientFactory.CreateClient("ServerAPI");
         public async Task<ProfileResult?> GetProfileAsync(string email)
         {
-            var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
-            return response;
+            try
+            {
+                var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
+                return response;
+            }
+            catch (Exception)
+            {
+                // TODO logging
+                return default;
+            }
         }
 
         public async Task<AuthSetPhoneNumberResult> SetPhoneNumberAsync(SetPhoneNumberInputModel model)
         {
-            var response = await _http.PostAsJsonAsync("api/account/set-phone-number", model);
-            var result = await response.Content.ReadFromJsonAsync<ProfileResult>();
+            ProfileResult? result;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/account/set-phone-number", model);
+                result = await response.Content.ReadFromJsonAsync<ProfileResult>();
+            }
+            catch (Exception)
+            {
+                // TODO logging
+                return new AuthSetPhoneNumberResult(SomethingWentWrong);
+            }
 
             return result is { Succeeded: true }
                 ? new AuthSetPhoneNumberResult()

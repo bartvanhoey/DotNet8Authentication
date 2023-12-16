@@ -4,5 +4,6 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ResetPassword
     {
         ResetPasswordSuccessful = 0,
         ResetPasswordUnSuccessful = 1,
+        SomethingWentWrong = 2
     }
 }

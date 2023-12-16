@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using DotNet8Auth.BlazorWasmApp.Authentication.Register;
 using DotNet8Auth.Shared.Models.Authentication.ForgotPassword;
+using static DotNet8Auth.BlazorWasmApp.Authentication.ForgotPassword.AuthForgotPasswordInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Authentication.ForgotPassword
 {
@@ -10,12 +11,21 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ForgotPassword
 
         public async Task<AuthForgotPasswordResult> AskPasswordResetAsync(ForgotPasswordInputModel input)
         {
-            var response = await _http.PostAsJsonAsync("api/account/forgot-password", input);
-            var result = await response.Content.ReadFromJsonAsync<RegisterResult>();
+            RegisterResult? result;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/account/forgot-password", input);
+                result = await response.Content.ReadFromJsonAsync<RegisterResult>();
+            }
+            catch (Exception)
+            {
+                // TODO logging
+                return new AuthForgotPasswordResult(SomethingWentWrong);
+            }
 
             return result is { Succeeded: true }
                 ? new AuthForgotPasswordResult()
-                : new AuthForgotPasswordResult(AuthForgotPasswordInfo.UnSuccessful);
+                : new AuthForgotPasswordResult(UnSuccessful);
         }
     }
 }

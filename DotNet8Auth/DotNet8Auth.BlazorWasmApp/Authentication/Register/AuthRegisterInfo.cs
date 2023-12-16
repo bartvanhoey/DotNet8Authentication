@@ -4,6 +4,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Register
     {
         RegistrationSuccessful = 0,
         RegistrationUnsuccessful = 1,
+        SomethingWentWrong = 2
     }
 
 }

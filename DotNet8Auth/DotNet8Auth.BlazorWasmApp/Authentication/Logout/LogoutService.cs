@@ -9,7 +9,14 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Logout
         public async Task LogoutAsync()
         {
             var httpClient = clientFactory.CreateClient("ServerAPI");
-            await httpClient.DeleteAsync("api/account/revoke");
+            try
+            {
+                await httpClient.DeleteAsync("api/account/revoke");
+            }
+            catch(Exception)
+            {
+                // TODO logging here
+            }
             await localStorage.RemoveItemAsync("accessToken");
             await localStorage.RemoveItemAsync("refreshToken");
             await authenticationStateProvider.GetAuthenticationStateAsync();

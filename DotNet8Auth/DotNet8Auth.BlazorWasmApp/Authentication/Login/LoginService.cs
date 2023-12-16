@@ -22,8 +22,8 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
         {
             await localStorage.RemoveItemAsync("accessToken");
 
-            HttpResponseMessage? response = null;
-            LoginResult? result = null;
+            HttpResponseMessage? response;
+            LoginResult? result;
             try
             {
                 response = await _httpClient.PostAsJsonAsync("api/account/login", input);
@@ -31,8 +31,8 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.Login
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                return new AuthLoginResult(ApiDown);
+                // TODO logging
+                return new AuthLoginResult(SomethingWentWrong);
             }
 
             if (result == null) return new AuthLoginResult(ContentIsNull);

@@ -4,5 +4,6 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ResendEmailConfirmation
     {
         ResendEmailConfirmationSuccessful = 0,
         ResendEmailConfirmationUnsuccessful = 1,
+        SomethingWentWrong = 2
     }
 }

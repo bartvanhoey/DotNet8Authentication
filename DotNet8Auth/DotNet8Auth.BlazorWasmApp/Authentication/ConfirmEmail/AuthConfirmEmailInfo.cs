@@ -4,6 +4,7 @@ namespace DotNet8Auth.BlazorWasmApp.Authentication.ConfirmEmail
     {
         ConfirmEmailSuccessful = 0,
         ConfirmEmailUnsuccessful = 1,
+        SomethingWentWrong = 2,
     }
 
 
