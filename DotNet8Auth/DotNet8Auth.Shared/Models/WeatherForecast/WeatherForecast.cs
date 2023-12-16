@@ -1,4 +1,4 @@
-namespace DotNet8Auth.API.Controllers.WeatherForecast
+namespace DotNet8Auth.Shared.Models.WeatherForecast
 {
     public class WeatherForecast
     {

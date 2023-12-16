@@ -1,6 +1,7 @@
 ﻿@page "/weather"
 @using DotNet8Auth.BlazorWasmApp.Services.Logging
 @using DotNet8Auth.Shared.Models.Logging
+@using DotNet8Auth.Shared.Models.WeatherForecast
 @inject HttpClient Http
 @inject IHttpClientFactory HttpClientFactory
 @inject ISerilogService SerilogService
@@ -47,20 +48,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await SerilogService.CreateLogEntry(new CreateLogEntryInputModel() { Level = "warning", Message = "Could not get weather" });
+        var result = await SerilogService.LogWarning(new CreateLogEntryInputModel() { Level = "warning", Message = "Could not get weather" });
         var http = HttpClientFactory.CreateClient("ServerAPI");
         forecasts = await http.GetFromJsonAsync<WeatherForecast[]>("api/weatherforecast");
     }
 
-    public class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
+    
 
 }

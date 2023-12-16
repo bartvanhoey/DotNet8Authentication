@@ -1,4 +1,4 @@
-﻿namespace DotNet8Auth.Shared.Models.SerilogModel
+﻿namespace DotNet8Auth.Shared.Models.Logging.SerilogModel
 {
     public class Log
     {

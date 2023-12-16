@@ -1,6 +1,6 @@
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.Shared.Models.Authentication;
-using DotNet8Auth.Shared.Models.SerilogModel;
+using DotNet8Auth.Shared.Models.Logging.SerilogModel;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
