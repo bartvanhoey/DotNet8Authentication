@@ -1,8 +1,7 @@
-namespace DotNet8Auth.Shared.Models.Authentication
+namespace DotNet8Auth.Shared.Models.Authentication;
+
+public static class UserRoles
 {
-  public static class UserRoles
- {
-     public const string Admin = "Admin";
-     public const string User = "User";
- }
+    public const string Admin = "Admin";
+    public const string User = "User";
 }

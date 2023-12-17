@@ -1,8 +1,7 @@
-namespace DotNet8Auth.Shared.Models.Authentication.ConfirmEmail
+namespace DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
+
+public class ConfirmEmailInputModel
 {
-    public class ConfirmEmailInputModel
-    {
-        public string UserId { get; set; } = "";
-        public string Code { get; set; } = "";
-    }
+    public string UserId { get; set; } = "";
+    public string Code { get; set; } = "";
 }

@@ -5,37 +5,36 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
-namespace DotNet8Auth.API.Controllers.Authentication
+namespace DotNet8Auth.API.Controllers.Authentication;
+
+[Route("api/account")]
+[ApiController]
+public class ProfileController(
+    UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger)
+    : ControllerBase
 {
-    [Route("api/account")]
-    [ApiController]
-    public class ProfileController(
-        UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger)
-        : ControllerBase
+    [Authorize]
+    [HttpGet]
+    [Route("get-profile")]
+    public async Task<IActionResult> GetProfile(string email)
     {
-        [Authorize]
-        [HttpGet]
-        [Route("get-profile")]
-        public async Task<IActionResult> GetProfile(string email)
+        try
         {
-            try
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
             {
-                var user = await userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong ");
-                    return StatusCode(Status500InternalServerError,
-                        new ProfileResponse("Error", "User retrieval went wrong"));
-                }
-                var userName = await userManager.GetUserNameAsync(user);
-                var phoneNumber = await userManager.GetPhoneNumberAsync(user);
-                return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
+                logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong ");
+                return StatusCode(Status500InternalServerError,
+                    new ProfileResponse("Error", "User retrieval went wrong"));
             }
-            catch (Exception exception)
-            {
-                logger.LogError(exception, nameof(GetProfile));
-                return StatusCode(Status500InternalServerError, new ProfileResponse("Error", "An exception occurred")); 
-            }
+            var userName = await userManager.GetUserNameAsync(user);
+            var phoneNumber = await userManager.GetPhoneNumberAsync(user);
+            return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, nameof(GetProfile));
+            return StatusCode(Status500InternalServerError, new ProfileResponse("Error", "An exception occurred")); 
         }
     }
 }

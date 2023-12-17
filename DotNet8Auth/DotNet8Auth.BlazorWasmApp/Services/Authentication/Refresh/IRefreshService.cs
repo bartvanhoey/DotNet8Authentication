@@ -1,7 +1,6 @@
-﻿namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Refresh
+﻿namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Refresh;
+
+public interface IRefreshService
 {
-    public interface IRefreshService
-    {
-        Task<AuthRefreshResult> RefreshAsync();
-    }
+    Task<AuthRefreshResult> RefreshAsync();
 }

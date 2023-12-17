@@ -1,8 +1,7 @@
-namespace DotNet8Auth.Shared.Models.Authentication
-{
+namespace DotNet8Auth.Shared.Models.Authentication;
+
 // public class UserInfo
 //     {
 //         public required string UserId { get; set; }
 //         public required string Email { get; set; }
 //     }
-}

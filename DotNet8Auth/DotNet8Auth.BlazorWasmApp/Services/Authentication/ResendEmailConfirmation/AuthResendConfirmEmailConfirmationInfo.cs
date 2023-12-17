@@ -1,9 +1,8 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ResendEmailConfirmation
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ResendEmailConfirmation;
+
+public enum AuthResendConfirmEmailConfirmationInfo
 {
-    public enum AuthResendConfirmEmailConfirmationInfo
-    {
-        ResendEmailConfirmationSuccessful = 0,
-        ResendEmailConfirmationUnsuccessful = 1,
-        SomethingWentWrong = 2
-    }
+    ResendEmailConfirmationSuccessful = 0,
+    ResendEmailConfirmationUnsuccessful = 1,
+    SomethingWentWrong = 2
 }

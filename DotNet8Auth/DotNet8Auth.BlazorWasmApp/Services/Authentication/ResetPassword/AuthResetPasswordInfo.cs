@@ -1,9 +1,8 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ResetPassword
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ResetPassword;
+
+public enum AuthResetPasswordInfo
 {
-    public enum AuthResetPasswordInfo
-    {
-        ResetPasswordSuccessful = 0,
-        ResetPasswordUnSuccessful = 1,
-        SomethingWentWrong = 2
-    }
+    ResetPasswordSuccessful = 0,
+    ResetPasswordUnSuccessful = 1,
+    SomethingWentWrong = 2
 }

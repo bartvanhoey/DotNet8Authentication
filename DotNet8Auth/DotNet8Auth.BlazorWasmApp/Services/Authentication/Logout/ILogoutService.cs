@@ -1,7 +1,6 @@
-﻿namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout
+﻿namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout;
+
+public interface ILogoutService
 {
-    public interface ILogoutService
-    {
-        Task LogoutAsync();
-    }
+    Task LogoutAsync();
 }

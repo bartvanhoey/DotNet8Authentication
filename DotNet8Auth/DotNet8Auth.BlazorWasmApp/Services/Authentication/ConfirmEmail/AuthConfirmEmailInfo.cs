@@ -1,11 +1,8 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ConfirmEmail
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ConfirmEmail;
+
+public enum AuthConfirmEmailInfo
 {
-    public enum AuthConfirmEmailInfo
-    {
-        ConfirmEmailSuccessful = 0,
-        ConfirmEmailUnsuccessful = 1,
-        SomethingWentWrong = 2,
-    }
-
-
+    ConfirmEmailSuccessful = 0,
+    ConfirmEmailUnsuccessful = 1,
+    SomethingWentWrong = 2,
 }

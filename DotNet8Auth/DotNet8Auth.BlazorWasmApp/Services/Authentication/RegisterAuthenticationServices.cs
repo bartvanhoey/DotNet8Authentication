@@ -7,20 +7,19 @@ using DotNet8Auth.BlazorWasmApp.Services.Authentication.Register;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ResendEmailConfirmation;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ResetPassword;
 
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication;
+
+public static class RegisterAuthenticationServices
 {
-    public static class RegisterAuthenticationServices
+    public static void AddAuthenticationServices(this IServiceCollection services)
     {
-        public static void AddAuthenticationServices(this IServiceCollection services)
-        {
-            services.AddScoped<ILoginService, LoginService>();
-            services.AddScoped<IRegisterService, RegisterService>();
-            services.AddScoped<IConfirmEmailService, ConfirmEmailService>();
-            services.AddScoped<IResendEmailConfirmationService, ResendEmailConfirmationService>();
-            services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
-            services.AddScoped<IResetPasswordService, ResetPasswordService>();
-            services.AddScoped<IProfileService, ProfileService>();
-            services.AddScoped<ILogoutService,LogoutService>();
-        }
+        services.AddScoped<ILoginService, LoginService>();
+        services.AddScoped<IRegisterService, RegisterService>();
+        services.AddScoped<IConfirmEmailService, ConfirmEmailService>();
+        services.AddScoped<IResendEmailConfirmationService, ResendEmailConfirmationService>();
+        services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
+        services.AddScoped<IResetPasswordService, ResetPasswordService>();
+        services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<ILogoutService,LogoutService>();
     }
 }

@@ -1,14 +1,12 @@
 using static DotNet8Auth.BlazorWasmApp.Services.Authentication.Login.AuthLoginMessage;
 
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Login
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Login;
+
+public class AuthLoginResult
 {
-    public class AuthLoginResult
-    {
-        public AuthLoginResult() => Message = LoginSuccess;
-        public AuthLoginResult(AuthLoginMessage message) => Message = message;
+    public AuthLoginResult() => Message = LoginSuccess;
+    public AuthLoginResult(AuthLoginMessage message) => Message = message;
 
-        public bool Succeeded => Message == LoginSuccess;
-        public AuthLoginMessage Message { get; set; }
-    }
-
+    public bool Succeeded => Message == LoginSuccess;
+    public AuthLoginMessage Message { get; set; }
 }
