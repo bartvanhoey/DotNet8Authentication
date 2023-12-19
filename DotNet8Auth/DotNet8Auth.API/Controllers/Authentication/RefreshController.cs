@@ -29,6 +29,11 @@ public class RefreshController(
     {
         try
         {
+            var result = ValidateInputModel(model, logger, nameof(Refresh));
+            if (result.IsFailure) 
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
+
+            
             if (IsNullOrWhiteSpace(model.AccessToken))
             {
                 logger.LogError($"{nameof(Refresh)}: access token is null");
@@ -41,28 +46,7 @@ public class RefreshController(
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", "RefreshToken Empty"));
             }
 
-            var validIssuer = configuration["Jwt:ValidIssuer"];
-            if (IsNullOrEmpty(validIssuer))
-            {
-                logger.LogError($"{nameof(Refresh)}: valid issuer is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
-            }
-
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (IsNullOrEmpty(validAudience))
-            {
-                logger.LogError($"{nameof(Refresh)}: valid audience is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
-            }
-
-            var securityKey = configuration["Jwt:SecurityKey"];
-            if (IsNullOrEmpty(securityKey))
-            {
-                logger.LogError($"{nameof(Refresh)}: security key is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
-            }
-
-            var principal = GetPrincipalFromExpiredToken(model.AccessToken, securityKey, validIssuer, validAudience);
+            var principal = GetPrincipalFromExpiredToken(model.AccessToken, result.Value.SecurityKey, result.Value.ValidIssuer, result.Value.Origin);
             if (principal?.Identity?.Name is null)
             {
                 logger.LogError($"{nameof(Refresh)}: principal is null");
@@ -76,7 +60,7 @@ public class RefreshController(
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Refresh went wrong"));
             }
 
-            var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
+            var jwtSecurityToken = await GenerateJwtToken(user, result.Value.ValidIssuer, result.Value.Origin, result.Value.SecurityKey);
 
             return Ok(new LoginResponse
             {

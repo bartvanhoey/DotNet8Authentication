@@ -11,8 +11,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 [ApiController]
 public class SetPhoneNumberController(
     UserManager<ApplicationUser> userManager,
-    ILogger<SetPhoneNumberController> logger)
-    : ControllerBase
+    ILogger<SetPhoneNumberController> logger,
+    IConfiguration configuration)
+    : AuthControllerBase(userManager, configuration)
 {
     [Authorize]
     [HttpPost]
@@ -21,6 +22,11 @@ public class SetPhoneNumberController(
     {
         try
         {
+            var validationResult = ValidateInputModel(model, logger, nameof(SetPhoneNumber));
+            if (validationResult.IsFailure)
+                return StatusCode(Status500InternalServerError,
+                    new SetPhoneNumberResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
+
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
@@ -31,9 +37,10 @@ public class SetPhoneNumberController(
 
             var result = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
             if (result.Succeeded)
-                return Ok(new SetPhoneNumberResponse("Success", userName: user.UserName, phoneNumber: model.PhoneNumber));
-                
-            logger.LogError($"{nameof(SetPhoneNumber)}: Update phone number went wrong ");        
+                return Ok(
+                    new SetPhoneNumberResponse("Success", userName: user.UserName, phoneNumber: model.PhoneNumber));
+
+            logger.LogError($"{nameof(SetPhoneNumber)}: Update phone number went wrong ");
             return StatusCode(Status500InternalServerError,
                 new SetPhoneNumberResponse("Error", "update phone number went wrong"));
         }

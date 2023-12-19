@@ -10,8 +10,10 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 [Route("api/account")]
 [ApiController]
 public class ProfileController(
-    UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger)
-    : ControllerBase
+    UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger, IConfiguration configuration)
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    : AuthControllerBase(userManager, configuration )
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [Authorize]
     [HttpGet]
@@ -20,6 +22,12 @@ public class ProfileController(
     {
         try
         {
+            var model = new GetProfileInputModel();
+            
+            var result = ValidateInputModel(model, logger, nameof(GetProfile));
+            if (result.IsFailure) 
+                return StatusCode(Status500InternalServerError, new ProfileResponse("Error", result.Error?.Message ?? "something went wrong"));
+            
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {

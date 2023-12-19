@@ -14,31 +14,23 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 [Route("api/account")]
 public class ForgotPasswordController(
     UserManager<ApplicationUser> userManager,
-    IEmailSender<ApplicationUser> emailSender, IConfiguration configuration,ILogger<ForgotPasswordController> logger) : ControllerBase
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    IEmailSender<ApplicationUser> emailSender, IConfiguration configuration,ILogger<ForgotPasswordController> logger) : AuthControllerBase(userManager, configuration)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
     [Route("forgot-password")]
-    public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationInputModel input)
+    public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationInputModel model)
     {
         try
         {
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (string.IsNullOrEmpty(validAudience))
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: valid audience is null");
-                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", "Invalid Audience"));
-            }
-
-            var origin = HttpContext.Request.Headers.Origin;
-            if (validAudience != origin)
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: origin is invalid");
-                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", "Invalid Origin"));
-            }
-
-            var callbackUrl = $"{origin}/Account/ResetPassword";
+            var validationResult = ValidateInputModel(model, logger, nameof(ResendEmailConfirmation));
+            if (validationResult.IsFailure) 
+                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
             
-            var user = await userManager.FindByEmailAsync(input.Email);
+            var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ResetPassword";
+            
+            var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 logger.LogError($"{nameof(ResendEmailConfirmation)}: user is null");
@@ -57,7 +49,7 @@ public class ForgotPasswordController(
             code = Base64UrlEncode(UTF8.GetBytes(code));
             var resetLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?> { ["code"] = code });
 
-            await emailSender.SendPasswordResetLinkAsync(user, input.Email, resetLink);
+            await emailSender.SendPasswordResetLinkAsync(user, model.Email, resetLink);
 
             return Ok(new ForgotPasswordResponse("Success", "Resend Email Confirmation successful", code));
         }

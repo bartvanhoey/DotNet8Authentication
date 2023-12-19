@@ -25,15 +25,15 @@ public class LoginController(
     [Route("login")]
     [ProducesResponseType(Status200OK, Type = typeof(LoginResponse))]
     [ProducesResponseType(Status500InternalServerError)]
-    public async Task<IActionResult> Login([FromBody] LoginInputModel? input)
+    public async Task<IActionResult> Login([FromBody] LoginInputModel? model)
     {
         try
         {
-            var result = ValidateInputModel(input, logger, nameof(Login));
+            var result = ValidateInputModel(model, logger, nameof(Login));
             if (result.IsFailure) 
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
             
-            var user = await userManager.FindByEmailAsync(input.Email);
+            var user = await userManager.FindByEmailAsync(model?.Email ?? string.Empty);
             if (user == null)
             {
                 logger.LogError($"{nameof(Login)}: user is null");
@@ -47,7 +47,7 @@ public class LoginController(
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Email Empty"));
             }
 
-            var isPasswordValid = await userManager.CheckPasswordAsync(user, input.Password);
+            var isPasswordValid = await userManager.CheckPasswordAsync(user, model.Password);
             if (!isPasswordValid)
             {
                 logger.LogError($"{nameof(Login)}: password is invalid");

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 
 namespace DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
 
-public class SetPhoneNumberInputModel
+public class SetPhoneNumberInputModel : BaseInputModel
 {
     [Required]
     [EmailAddress]

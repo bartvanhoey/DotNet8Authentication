@@ -39,29 +39,49 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         return token;
     }
 
-    protected Result ValidateInputModel<T>(BaseInputModel? input, ILogger<T> logger, string methodName )
+    protected Result<ValidateInputModelResult> ValidateInputModel<T>(BaseInputModel? input, ILogger<T> logger, string methodName )
     {
         if (input is null)
         {
             logger.LogError("{MethodName}: input is null", methodName);
-            return Result.Fail(new ResultError("input is null"));
+            return Result.Fail<ValidateInputModelResult>(new ResultError("input is null"));
         }
-            
-        var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
         
+        var securityKey = configuration["Jwt:SecurityKey"];
+        if (IsNullOrEmpty(securityKey))
+        {
+            logger.LogError("{MethodName}: security key is null", methodName);
+            return Result.Fail<ValidateInputModelResult>(new ResultError("security key is null"));
+        }
+        
+        var validIssuer = configuration["Jwt:ValidIssuer"];
+        if (IsNullOrEmpty(validIssuer))
+        {
+            logger.LogError("{MethodName}: valid issuer is null", methodName);
+            return Result.Fail<ValidateInputModelResult>(new ResultError("valid issuer is null"));
+        }
+        
+        var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
         if (validAudiences== null || validAudiences.Count == 0)
         {
             logger.LogError("{MethodName}: audience is null", methodName);
-            return Result.Fail(new ResultError("audience is null"));
+            return Result.Fail<ValidateInputModelResult>(new ResultError("audience is null"));
         }
 
         var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
         if (!origin.IsNullOrEmpty() && validAudiences.Contains(origin ?? throw new InvalidOperationException()))
-            return Result.Ok();
-        
+            return Result.Ok(new ValidateInputModelResult(){SecurityKey = securityKey, ValidIssuer = validIssuer, ValidAudiences = validAudiences, Origin = origin});
+  
         logger.LogError("{MethodName}: origin is wrong", methodName);
-        return Result.Fail(new ResultError("origin is wrong"));
-
+        return Result.Fail<ValidateInputModelResult>(new ResultError("origin is wrong"));
     }
     
+}
+
+public class ValidateInputModelResult
+{
+    public string SecurityKey { get; set; }
+    public string ValidIssuer { get; set; }
+    public List<string> ValidAudiences { get; set; }
+    public string Origin { get; set; }
 }

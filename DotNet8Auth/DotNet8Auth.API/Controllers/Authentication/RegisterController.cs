@@ -1,6 +1,7 @@
 using System.Text;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Extensions;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 [ApiController]
 [Route("api/account")]
 public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger)
-    : ControllerBase
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    : AuthControllerBase(userManager, configuration)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
     [Route("register")]
@@ -23,21 +26,12 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     {
         try
         {
-            var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
-            if (validAudiences== null || validAudiences.Count == 0)
-            {
-                logger.LogError($"{nameof(Register)}: audience is null");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
-            }
+            var validationResult = ValidateInputModel(model, logger, nameof(Register));
+            if (validationResult.IsFailure) 
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
 
-            var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
-            if (origin.IsNullOrEmpty()  || !validAudiences.Contains(origin ?? throw new InvalidOperationException())  )
-            {
-                logger.LogError($"{nameof(Register)}: origin is wrong");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
-            }
 
-            var callbackUrl = $"{origin}/Account/ConfirmEmail";
+            var callbackUrl = $"{HttpContext.Request.Headers.Origin.FirstOrDefault()}/Account/ConfirmEmail";
             if (IsNullOrEmpty(model.Email))
             {
                 logger.LogError($"{nameof(Register)}: email is null");

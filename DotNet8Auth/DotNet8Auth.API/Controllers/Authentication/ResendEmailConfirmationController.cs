@@ -15,7 +15,10 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 public class ResendEmailConfirmationController(
     UserManager<ApplicationUser> userManager,
     IEmailSender<ApplicationUser> emailSender,
-    IConfiguration configuration, ILogger<ResendEmailConfirmationController> logger) : ControllerBase
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    IConfiguration configuration,
+    ILogger<ResendEmailConfirmationController> logger) : AuthControllerBase(userManager, configuration)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
     [Route("resend-email-confirmation")]
@@ -23,23 +26,12 @@ public class ResendEmailConfirmationController(
     {
         try
         {
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (IsNullOrEmpty(validAudience))
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: audience is null");
+            var result = ValidateInputModel(model, logger, nameof(ResendEmailConfirmation));
+            if (result.IsFailure)
                 return StatusCode(Status500InternalServerError,
-                    new ResendEmailConfirmationResponse("Error", "Invalid Audience"));
-            }
+                    new ResendEmailConfirmationResponse("Error", result.Error?.Message ?? "something went wrong"));
 
-            var origin = HttpContext.Request.Headers.Origin;
-            if (validAudience != origin)
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: origin is wrong");
-                return StatusCode(Status500InternalServerError,
-                    new ResendEmailConfirmationResponse("Error", "Invalid Audience"));
-            }
-
-            var callbackUrl = $"{origin}/Account/ConfirmEmail";
+            var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ConfirmEmail";
 
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)

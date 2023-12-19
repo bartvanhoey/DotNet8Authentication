@@ -11,7 +11,8 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class ConfirmEmailController(UserManager<ApplicationUser> userManager, ILogger<ConfirmEmailController> logger) : ControllerBase
+public class ConfirmEmailController(UserManager<ApplicationUser> userManager, ILogger<ConfirmEmailController> logger, IConfiguration configuration)   
+    : AuthControllerBase(userManager, configuration)
 {
     [HttpPost]
     [Route("confirm-email")]
@@ -19,12 +20,16 @@ public class ConfirmEmailController(UserManager<ApplicationUser> userManager, IL
     {
         try
         {
+            var validationResult = ValidateInputModel(model, logger, nameof(ConfirmEmail));
+            if (validationResult.IsFailure) 
+                return StatusCode(Status500InternalServerError, new ConfirmEmailResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
+            
             var user = await userManager.FindByIdAsync(model.UserId);
             if (user == null)
             {
                 logger.LogError($"{nameof(ConfirmEmail)}: User retrieval went wrong ");
                 return StatusCode(Status500InternalServerError,
-                    new ConfirmEmailResponse { Status = "Error", Message = "User does not exist" });
+                    new ConfirmEmailResponse( "Error", "User does not exist"));
             }
 
             var code = UTF8.GetString(Base64UrlDecode(model.Code));

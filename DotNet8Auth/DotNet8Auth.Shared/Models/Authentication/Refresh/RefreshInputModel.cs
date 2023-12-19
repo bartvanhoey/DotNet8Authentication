@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 
 namespace DotNet8Auth.Shared.Models.Authentication.Refresh;
 
-public class RefreshInputModel
+public class RefreshInputModel : BaseInputModel
 {
     public RefreshInputModel()
     {

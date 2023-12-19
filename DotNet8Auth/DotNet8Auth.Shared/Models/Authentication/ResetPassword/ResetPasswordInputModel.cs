@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 
 namespace DotNet8Auth.Shared.Models.Authentication.ResetPassword;
 
-public class ResetPasswordInputModel
+public class ResetPasswordInputModel : BaseInputModel
 {
     [Required]
     [EmailAddress]
