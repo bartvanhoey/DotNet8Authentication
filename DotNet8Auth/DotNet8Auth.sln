@@ -7,13 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.API", "DotNet8A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.Shared", "DotNet8Auth.Shared\DotNet8Auth.Shared.csproj", "{8858FC71-355B-4769-95FE-2F5EE5C46EB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auht.Tests", "DotNet8Auht.Tests\DotNet8Auht.Tests.csproj", "{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8Auth.UiTests", "DotNet8Auth.UiTests\DotNet8Auth.UiTests.csproj", "{89273042-16A5-40F4-8177-48C078B3639F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.BlazorWasmApp", "DotNet8Auth.BlazorWasmApp\DotNet8Auth.BlazorWasmApp.csproj", "{376D8109-1F3D-4872-B5B8-3780F3712A3A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.MobileApp", "DotNet8Auth.MobileApp\DotNet8Auth.MobileApp.csproj", "{498C1520-B990-49F8-AFFC-4FC1643438D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8Auth.MapIdentityAPI", "DotNet8Auth.MapIdentityAPI\DotNet8Auth.MapIdentityAPI.csproj", "{43EDC430-6B7B-4EA4-9BD4-01D5E5F752F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,6 @@ Global
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8858FC71-355B-4769-95FE-2F5EE5C46EB5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC2AEA6A-FB8B-44EB-9A61-CD74400548B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89273042-16A5-40F4-8177-48C078B3639F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{498C1520-B990-49F8-AFFC-4FC1643438D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{498C1520-B990-49F8-AFFC-4FC1643438D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{498C1520-B990-49F8-AFFC-4FC1643438D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43EDC430-6B7B-4EA4-9BD4-01D5E5F752F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43EDC430-6B7B-4EA4-9BD4-01D5E5F752F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43EDC430-6B7B-4EA4-9BD4-01D5E5F752F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43EDC430-6B7B-4EA4-9BD4-01D5E5F752F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
