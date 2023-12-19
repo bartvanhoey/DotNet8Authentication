@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DotNet8Auth.Shared.Models.Authentication.Login;
 
-public sealed class LoginInputModel
+public sealed class LoginInputModel : BaseInputModel
 {
     [Required]
     [EmailAddress]
@@ -14,4 +14,8 @@ public sealed class LoginInputModel
 
     [Display(Name = "Remember me?")]
     public bool RememberMe { get; set; }
+}
+
+public class BaseInputModel
+{
 }

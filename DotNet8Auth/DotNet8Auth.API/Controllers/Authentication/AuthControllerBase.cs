@@ -1,14 +1,17 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DotNet8Auth.Shared.Functional;
+using DotNet8Auth.Shared.Functional.Errors;
 using DotNet8Auth.Shared.Models.Authentication;
+using DotNet8Auth.Shared.Models.Authentication.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
 
-public class AuthControllerBase(UserManager<ApplicationUser> userManager) : ControllerBase
+public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfiguration configuration) : ControllerBase
 {
     protected async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user, string jwtValidIssuer, string jwtValidAudience, string jwtSecurityKey)
     {
@@ -35,4 +38,30 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager) : Cont
         );
         return token;
     }
+
+    protected Result ValidateInputModel<T>(BaseInputModel? input, ILogger<T> logger, string methodName )
+    {
+        if (input is null)
+        {
+            logger.LogError("{MethodName}: input is null", methodName);
+            return Result.Fail(new ResultError("input is null"));
+        }
+            
+        var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
+        
+        if (validAudiences== null || validAudiences.Count == 0)
+        {
+            logger.LogError("{MethodName}: audience is null", methodName);
+            return Result.Fail(new ResultError("audience is null"));
+        }
+
+        var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
+        if (!origin.IsNullOrEmpty() && validAudiences.Contains(origin ?? throw new InvalidOperationException()))
+            return Result.Ok();
+        
+        logger.LogError("{MethodName}: origin is wrong", methodName);
+        return Result.Fail(new ResultError("origin is wrong"));
+
+    }
+    
 }

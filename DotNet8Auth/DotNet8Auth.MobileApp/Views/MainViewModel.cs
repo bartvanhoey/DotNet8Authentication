@@ -131,7 +131,7 @@ public partial class MainViewModel : BaseViewModel
     private HttpClient GetHttpClient()
     {
         var httpClient = new HttpClient(GetHttpClientHandler());
-        httpClient.DefaultRequestHeaders.Add("Origin", new[] { "IAmAValidAudience" });
+        httpClient.DefaultRequestHeaders.Add("Origin", new[] { "IAmNotAValidAudience" });
         return httpClient;
     }
 

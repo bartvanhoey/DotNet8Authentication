@@ -18,7 +18,7 @@ public class LoginController(
     UserManager<ApplicationUser> userManager,
     IConfiguration configuration, ILogger<LoginController> logger)
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    : AuthControllerBase(userManager)
+    : AuthControllerBase(userManager, configuration)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
@@ -29,27 +29,10 @@ public class LoginController(
     {
         try
         {
-            if (input is null)
-            {
-                logger.LogError($"{nameof(Login)}: input is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Login went wrong"));
-            }
+            var result = ValidateInputModel(input, logger, nameof(Login));
+            if (result.IsFailure) 
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
             
-            var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
-            if (validAudiences== null || validAudiences.Count == 0)
-            {
-                logger.LogError($"{nameof(Login)}: audience is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
-            }
-
-            var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
-            if (origin.IsNullOrEmpty()  || !validAudiences.Contains(origin ?? throw new InvalidOperationException())  )
-            {
-                logger.LogError($"{nameof(Login)}: origin is wrong");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
-            }
-
-
             var user = await userManager.FindByEmailAsync(input.Email);
             if (user == null)
             {
