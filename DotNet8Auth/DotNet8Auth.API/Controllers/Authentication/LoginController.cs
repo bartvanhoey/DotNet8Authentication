@@ -4,6 +4,7 @@ using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using static System.DateTime;
 using static System.String;
 using static Microsoft.AspNetCore.Http.StatusCodes;
@@ -33,6 +34,21 @@ public class LoginController(
                 logger.LogError($"{nameof(Login)}: input is null");
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Login went wrong"));
             }
+            
+            var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
+            if (validAudiences== null || validAudiences.Count == 0)
+            {
+                logger.LogError($"{nameof(Login)}: audience is null");
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
+            }
+
+            var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
+            if (origin.IsNullOrEmpty()  || !validAudiences.Contains(origin ?? throw new InvalidOperationException())  )
+            {
+                logger.LogError($"{nameof(Login)}: origin is wrong");
+                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
+            }
+
 
             var user = await userManager.FindByEmailAsync(input.Email);
             if (user == null)

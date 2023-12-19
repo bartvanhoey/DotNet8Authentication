@@ -1,3 +1,5 @@
+global using static System.String;
+
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using DotNet8Auth.API;
@@ -17,6 +19,7 @@ using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
 using ILogger = Serilog.ILogger;
+
 
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
@@ -87,6 +90,9 @@ try
     // Adding Authentication
     var validAudience = builder.Configuration["Jwt:ValidAudience"]
                         ?? throw new InvalidOperationException("'Audience' not found.");
+    
+    var validAudiences = builder.Configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>()
+                        ?? throw new InvalidOperationException("'Audience' not found.");
 
     var validIssuer = builder.Configuration["Jwt:ValidIssuer"]
                       ?? throw new InvalidOperationException("'Issuer' not found.");
@@ -107,7 +113,8 @@ try
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidAudience = validAudience,
+            // ValidAudience = validAudience,
+            ValidAudiences = validAudiences,
             ValidIssuer = validIssuer,
             IssuerSigningKey = new SymmetricSecurityKey(UTF8.GetBytes(securityKey)),
             ClockSkew = new TimeSpan(0, 0, 5)

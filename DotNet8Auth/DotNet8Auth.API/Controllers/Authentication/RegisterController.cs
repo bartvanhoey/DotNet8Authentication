@@ -5,8 +5,9 @@ using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.IdentityModel.Tokens;
 using static System.Activator;
-using static System.String;
+
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
@@ -22,15 +23,15 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     {
         try
         {
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (IsNullOrEmpty(validAudience))
+            var validAudiences = configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>();
+            if (validAudiences== null || validAudiences.Count == 0)
             {
                 logger.LogError($"{nameof(Register)}: audience is null");
                 return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
             }
 
-            var origin = HttpContext.Request.Headers.Origin;
-            if (validAudience != origin)
+            var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
+            if (origin.IsNullOrEmpty()  || !validAudiences.Contains(origin ?? throw new InvalidOperationException())  )
             {
                 logger.LogError($"{nameof(Register)}: origin is wrong");
                 return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Invalid Audience"));
