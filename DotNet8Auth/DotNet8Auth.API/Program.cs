@@ -4,32 +4,22 @@ using DotNet8Auth.API.Data;
 using DotNet8Auth.API.Registration;
 using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-// ReSharper disable TemplateIsNotCompileTimeConstantProblem
-
-
-
 var builder = WebApplication.CreateBuilder(args);
-
 try
 {
     builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-    
-    builder.RegisterSerilog();
 
+    builder.RegisterSerilog();
     Log.Information("Starting the web host");
 
-    // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     
     builder.RegisterSwagger();
-    
     builder.RegisterDatabase();
-    
-    // Setup Identity
+
     builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -37,10 +27,7 @@ try
         .AddDefaultTokenProviders();
 
     builder.SetupEmailClient();
-    
-    builder.Services.AddCorsPolicy();
-
-    // Adding Authentication
+    builder.AddCorsPolicy();
     builder.RegisterJwtAuthentication();
     
     Log.Information("Services registered");
@@ -56,9 +43,8 @@ finally
 
 var app = builder.Build();
 
-// app.UseSerilogRequestLogging(); Logs all http requests
+app.UseSerilogRequestLogging(); 
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
