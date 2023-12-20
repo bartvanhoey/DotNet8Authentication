@@ -19,19 +19,19 @@ public class SerilogController(ILogger<SerilogController> logger) : ControllerBa
             switch (model.Level)
             {
                 case "warning":
-                    logger.LogWarning($"{nameof(CreateLogEntry)}: {model.Message}");
+                    logger.LogWarning(model.Message);
                     break;
                 case "error":
-                    logger.LogError($"{nameof(CreateLogEntry)}: {model.Message}");
+                    logger.LogError(model.Message);
                     break;
                 case "critical":
-                    logger.LogCritical($"{nameof(CreateLogEntry)}: {model.Message}");
+                    logger.LogCritical(model.Message);
                     break;
                 case "trace":
-                    logger.LogTrace($"{nameof(CreateLogEntry)}: {model.Message}");
+                    logger.LogTrace(model.Message);
                     break;
                 case "debug":
-                    logger.LogDebug($"{nameof(CreateLogEntry)}: {model.Message}");
+                    logger.LogDebug(model.Message);
                     break;
             }
 

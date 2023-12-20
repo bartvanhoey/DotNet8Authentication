@@ -48,7 +48,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await SerilogService.LogWarning("should be ok");
+        var result = await SerilogService.LogWarning("should be ok", nameof(OnInitializedAsync));
         var http = HttpClientFactory.CreateClient("ServerAPI");
         forecasts = await http.GetFromJsonAsync<WeatherForecast[]>("api/weatherforecast");
     }

@@ -1,5 +1,9 @@
 ﻿namespace DotNet8Auth.BlazorWasmApp.Services.Logging;
 
-public class CreateLogEntryResult
+public class CreateLogEntryResult(bool isSuccessFul)
 {
+    public CreateLogEntryResult() : this(true)
+    {
+    }
+    public bool IsSuccessFul { get; set; } = isSuccessFul;
 }
