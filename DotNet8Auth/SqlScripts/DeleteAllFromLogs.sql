@@ -1,0 +1,1 @@
+Delete FROM [DotNet8AuthDb].[dbo].[Logs]

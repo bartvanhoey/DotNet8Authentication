@@ -24,8 +24,7 @@ try
 {
     builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
 
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                           throw new InvalidOperationException("Connection string not found");
+    
     builder.RegisterSerilog();
 
     Log.Information("Starting the web host");
@@ -37,6 +36,8 @@ try
     builder.RegisterSwagger();
 
     // Setup DbContext
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                           throw new InvalidOperationException("Connection string not found");
     builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
     // Setup Identity
@@ -51,40 +52,8 @@ try
     builder.Services.AddCorsPolicy();
 
     // Adding Authentication
-    var validAudiences = builder.Configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>()
-                         ?? throw new InvalidOperationException("'Audience' not found.");
-
-    var validIssuer = builder.Configuration["Jwt:ValidIssuer"]
-                      ?? throw new InvalidOperationException("'Issuer' not found.");
-
-    var securityKey = builder.Configuration["Jwt:SecurityKey"]
-                      ?? throw new InvalidOperationException("'SecurityKey' not found.");
-
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = AuthenticationScheme;
-        options.DefaultChallengeScheme = AuthenticationScheme;
-        options.DefaultScheme = AuthenticationScheme;
-    }).AddJwtBearer(options =>
-    {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            // ValidAudience = validAudience,
-            ValidAudiences = validAudiences,
-            ValidIssuer = validIssuer,
-            IssuerSigningKey = new SymmetricSecurityKey(UTF8.GetBytes(securityKey)),
-            ClockSkew = new TimeSpan(0, 0, 5)
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnChallenge = ctx => LogAttempt(ctx.Request.Headers, "OnChallenge: 401 NotAuthorized", Log.Logger),
-            OnTokenValidated = ctx => LogAttempt(ctx.Request.Headers, "OnTokenValidated: Authorized", Log.Logger)
-        };
-    });
+    builder.RegisterJwtAuthentication();
+    
     Log.Information("Services registered");
 }
 catch (Exception exception)
@@ -122,24 +91,3 @@ app.MapAdditionalIdentityEndpoints();
 
 app.Run();
 
-Task LogAttempt(IHeaderDictionary headers, string eventType, ILogger logger)
-{
-    var authorizationHeader = headers.Authorization.FirstOrDefault();
-    if (authorizationHeader is null)
-    {
-        Out.WriteLine($"{eventType}. JWT not present");
-        logger.Information($"{eventType}. JWT not present");
-    }
-    else
-    {
-        var jwtString = authorizationHeader.Substring("Bearer ".Length);
-        var jwt = new JwtSecurityToken(jwtString);
-
-        logger.Information(
-            $"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
-        Out.WriteLine(
-            $"{eventType}. Expiration: {jwt.ValidTo.ToLongTimeString()}. System time: {DateTime.UtcNow.ToLongTimeString()}");
-    }
-
-    return CompletedTask;
-}
