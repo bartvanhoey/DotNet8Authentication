@@ -51,9 +51,6 @@ try
     builder.Services.AddCorsPolicy();
 
     // Adding Authentication
-    var validAudience = builder.Configuration["Jwt:ValidAudience"]
-                        ?? throw new InvalidOperationException("'Audience' not found.");
-
     var validAudiences = builder.Configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>()
                          ?? throw new InvalidOperationException("'Audience' not found.");
 
