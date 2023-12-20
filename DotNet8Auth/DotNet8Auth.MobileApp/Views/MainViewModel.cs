@@ -49,7 +49,7 @@ public partial class MainViewModel : BaseViewModel
         if (response.IsSuccessStatusCode)
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            RegisterUserMessage = "User successfully registered!";
+            RegisterUserMessage = "User successfully registered";
         }
         else
         {
@@ -87,7 +87,7 @@ public partial class MainViewModel : BaseViewModel
                 {
                     PropertyNameCaseInsensitive = true
                 });
-            LoginUserMessage = $"User successfully logged in!";
+            LoginUserMessage = $"User successfully logged in";
         }
         else
         {

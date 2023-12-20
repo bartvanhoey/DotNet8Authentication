@@ -8,8 +8,10 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [Route("api/account")]
 [ApiController]
-public class RevokeController(UserManager<ApplicationUser> userManager, ILogger<RevokeController> logger)
-    : ControllerBase
+public class RevokeController(UserManager<ApplicationUser> userManager, ILogger<RevokeController> logger, IConfiguration configuration)
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    : AuthControllerBase(userManager, configuration)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [Authorize]
     [HttpDelete("Revoke")]
@@ -19,12 +21,15 @@ public class RevokeController(UserManager<ApplicationUser> userManager, ILogger<
     {
         try
         {
+            var origin = ValidateOrigin(logger, nameof(Revoke));
+            if (origin.IsFailure) return Unauthorized();
+
             var username = HttpContext.User.Identity?.Name;
             if (username is null) return Unauthorized();
 
             var user = await userManager.FindByNameAsync(username);
             if (user is null) return Unauthorized();
-
+ 
             user.RefreshToken = null;
             await userManager.UpdateAsync(user);
             return Ok();

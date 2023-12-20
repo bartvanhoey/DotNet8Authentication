@@ -47,8 +47,9 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                logger.LogError($"{nameof(Register)}: user is null");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User already exists!"));
+                // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+                logger.LogError($"{nameof(Register)}: user '{model.Email}' already exists");
+                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User already exists"));
             }
 
             var newUser = CreateUser();
@@ -75,7 +76,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
                 { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
 
             await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);
-            return Ok(new RegisterResponse("Success", "User created successfully!", code, userId));
+            return Ok(new RegisterResponse("Success", "User created successfully", code, userId));
         }
         catch (Exception exception)
         {
@@ -91,7 +92,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     //     var userExists = await userManager.FindByNameAsync(model.Email);
     //     if (userExists != null)
     //         return StatusCode(Status500InternalServerError,
-    //             new LoginResponse { Status = "Error", Message = "User already exists!" });
+    //             new LoginResponse { Status = "Error", Message = "User already exists" });
     //
     //     ApplicationUser user = new ApplicationUser()
     //     {
@@ -117,7 +118,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     //         await userManager.AddToRoleAsync(user, UserRoles.Admin);
     //     }
     //
-    //     return Ok(new LoginResponse { Status = "Success", Message = "User created successfully!" });
+    //     return Ok(new LoginResponse { Status = "Success", Message = "User created successfully" });
     // }
 
 
