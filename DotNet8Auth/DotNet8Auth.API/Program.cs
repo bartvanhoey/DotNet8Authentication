@@ -1,10 +1,8 @@
 global using static System.String;
-
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using DotNet8Auth.API;
 using DotNet8Auth.API.Authentication;
 using DotNet8Auth.API.Data;
+using DotNet8Auth.API.Registration;
 using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,46 +10,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.MSSqlServer;
 using static System.Console;
 using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
 using ILogger = Serilog.ILogger;
-
-
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                       throw new InvalidOperationException("Connection string not found");
-
-var logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .WriteTo.MSSqlServer(
-        connectionString: connectionString,
-        sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
-    .CreateLogger();
-
-builder.Host.UseSerilog(logger);
-
-Serilog.Debugging.SelfLog.Enable(msg =>
-{
-    Debug.Print(msg);
-    Debugger.Break();
-});
 
 try
 {
+    builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
+
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                           throw new InvalidOperationException("Connection string not found");
+    builder.RegisterSerilog();
+
     Log.Information("Starting the web host");
-    
+
     // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    
+
     builder.Services.AddSwaggerGen(options =>
     {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -90,9 +72,9 @@ try
     // Adding Authentication
     var validAudience = builder.Configuration["Jwt:ValidAudience"]
                         ?? throw new InvalidOperationException("'Audience' not found.");
-    
+
     var validAudiences = builder.Configuration.GetSection("Jwt:ValidAudiences").Get<List<string>>()
-                        ?? throw new InvalidOperationException("'Audience' not found.");
+                         ?? throw new InvalidOperationException("'Audience' not found.");
 
     var validIssuer = builder.Configuration["Jwt:ValidIssuer"]
                       ?? throw new InvalidOperationException("'Issuer' not found.");
