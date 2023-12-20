@@ -2,27 +2,10 @@
 using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace DotNet8Auth.API;
+namespace DotNet8Auth.API.Registration;
 
-public static class ServiceCollectionExtensions
+public static class EmailSetupRegistration
 {
-    public static void AddCorsPolicy(this IServiceCollection services)
-    {
-        services.AddCors(options =>
-        {
-            options.AddPolicy("CorsPolicy", policy =>
-            {
-                policy.WithOrigins("https://localhost:7036/")
-                    .SetIsOriginAllowed((_) => true)
-                    // .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
-            });
-        });
-    }
-
-
     public static void SetupEmailClient(this IServiceCollection services, IConfiguration configuration)
     {
         // var environment = configuration.GetRequiredSection("ASPNETCORE_ENVIRONMENT").Value;

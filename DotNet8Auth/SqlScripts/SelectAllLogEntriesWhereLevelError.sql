@@ -8,3 +8,4 @@ SELECT TOP (1000) [Id]
       ,[Properties]
   FROM [DotNet8AuthDb].[dbo].[Logs]
   WHERE Level = 'Error'
+  Order by TimeStamp desc
