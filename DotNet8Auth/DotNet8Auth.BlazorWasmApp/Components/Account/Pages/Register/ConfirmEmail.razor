@@ -12,7 +12,7 @@
 <div class="row">
     <div class="col-md-6">
         <StatusMessage Message="@Message"/>
-        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">Confirm Email Address</button>
+        <button type="button" class="w-100 btn btn-lg btn-primary" @onclick="ConfirmEmailAsync">Confirm</button>
     </div>
 </div>
 
@@ -41,7 +41,7 @@
             return;
         }
 
-        var result = await ConfirmEmailService.ConfirmEmailAsync(new ConfirmEmailInputModel { UserId = UserId, Code = Code });
+        var result = await ConfirmEmailService.ConfirmEmailAsync(new ConfirmEmailInputModel(UserId, Code));
         if (result.Succeeded) NavigationManager!.NavigateTo("/");
         else
             Message = "The system couldn't confirm your email";

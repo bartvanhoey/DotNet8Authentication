@@ -7,11 +7,11 @@ public class SerilogService(IHttpClientFactory clientFactory) : ISerilogService
 {
     private readonly HttpClient _http = clientFactory.CreateClient("ServerAPI");
 
-    private async Task<CreateLogEntryResult> CreateLogEntry(CreateLogEntryInputModel input, string level)
+    private async Task<CreateLogEntryResult> CreateLogEntry(string level, string message)
     {
         try
         {
-            input.Level = level;
+            var input = new CreateLogEntryInputModel(level, message);
             var response = await _http.PostAsJsonAsync("api/serilog/create-log-entry", input);
             var result = await response.Content.ReadFromJsonAsync<SerilogResponse>();
             return new CreateLogEntryResult();    
@@ -24,13 +24,15 @@ public class SerilogService(IHttpClientFactory clientFactory) : ISerilogService
         return new CreateLogEntryResult();
     }
 
-    public Task<CreateLogEntryResult> LogWarning(CreateLogEntryInputModel input) => CreateLogEntry(input, "warning");
+    public Task<CreateLogEntryResult> LogWarning(string message) => CreateLogEntry("warning",  message);
 
-    public Task<CreateLogEntryResult> LogError(CreateLogEntryInputModel input) => CreateLogEntry(input, "error");
+    public Task<CreateLogEntryResult> LogError(string message ) => CreateLogEntry("error",  message);
+    public Task<CreateLogEntryResult> LogError(Exception exception) 
+        => CreateLogEntry("error",   $"{exception.GetType()} - {exception.Message}");
 
-    public Task<CreateLogEntryResult> LogCritical(CreateLogEntryInputModel input) => CreateLogEntry(input, "critical");
+    public Task<CreateLogEntryResult> LogCritical(string message) => CreateLogEntry("critical",  message);
 
-    public Task<CreateLogEntryResult> LogTrace(CreateLogEntryInputModel input) => CreateLogEntry(input, "trace");
+    public Task<CreateLogEntryResult> LogTrace(string message) => CreateLogEntry("trace",  message);
 
-    public Task<CreateLogEntryResult> LogDebug(CreateLogEntryInputModel input) => CreateLogEntry(input, "debug");
+    public Task<CreateLogEntryResult> LogDebug(string message) => CreateLogEntry("debug",  message);
 }
