@@ -30,11 +30,11 @@ public class ProfileService(IHttpClientFactory clientFactory, ISerilogService se
         {
             var response = await _http.PostAsJsonAsync("api/account/set-phone-number", model);
             result = await response.Content.ReadFromJsonAsync<ProfileResult>();
-            throw new AccessViolationException("just another message");
+            
         }
         catch (Exception exception)
         {
-            var seriLogResult = await serilogService.LogError(exception, nameof(SetPhoneNumberAsync));
+            await serilogService.LogError(exception, nameof(SetPhoneNumberAsync));
             return new AuthSetPhoneNumberResult(SomethingWentWrong);
         }
 
