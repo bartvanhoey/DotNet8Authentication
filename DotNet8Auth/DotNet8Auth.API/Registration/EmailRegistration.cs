@@ -6,15 +6,14 @@ namespace DotNet8Auth.API.Registration;
 
 public static class EmailSetupRegistration
 {
-    public static void SetupEmailClient(this IServiceCollection services, IConfiguration configuration)
+    public static void SetupEmailClient(this WebApplicationBuilder builder)
     {
-        // var environment = configuration.GetRequiredSection("ASPNETCORE_ENVIRONMENT").Value;
-        // if (environment == "Production")
-        //     services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
+        // if (builder.Configuration.GetRequiredSection("ASPNETCORE_ENVIRONMENT").Value == "Production")
+        //     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
         // else
-        //     services.AddSingleton<IEmailSender<ApplicationUser>, IdentityDevelopmentEmailSender>();
+        //     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityDevelopmentEmailSender>();
 
         // TODO Do not forget to setup correctly in production
-        services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
+       builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityProductionEmailSender>();
     }
 }
