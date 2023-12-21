@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout
+@inject ILogoutService LogoutService
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">DotNet8Auth</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -27,18 +31,14 @@
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Profile">
+                    <NavLink class="nav-link" href="Account/Manage/Profile">
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        @* <input type="hidden" name="ReturnUrl" value="@currentUrl" /> *@
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
-                    </form>
+                    <button class="nav-link" @onclick="Logout">
+                        <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                    </button>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -66,4 +66,11 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+    
+    private async Task Logout()
+    {
+        await LogoutService.LogoutAsync();
+        NavigationManager.NavigateTo("/Account/Login");
+    }
+
 }

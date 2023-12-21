@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Refresh;
+using static System.Console;
 using static System.String;
 
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication;
@@ -33,8 +34,11 @@ public class CustomAuthenticationHandler(
         }
         catch (Exception e)
         {
+            if (e.GetType() == typeof(HttpRequestException))
+                WriteLine("API down?");
+            else
+                WriteLine(e);
             iShouldRefresh = true;
-            Console.WriteLine(e);
         }
 
         if (_refreshing || IsNullOrEmpty(accessToken) || !iShouldRefresh) return response;
