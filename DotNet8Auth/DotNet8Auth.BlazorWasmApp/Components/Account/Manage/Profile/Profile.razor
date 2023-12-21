@@ -1,13 +1,11 @@
 @page "/Account/Manage/Profile"
 @using System.ComponentModel.DataAnnotations
 @using DotNet8Auth.BlazorWasmApp.Services.Authentication.Profile
-@using DotNet8Auth.Shared.Models.Authentication.Profile
 @using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber
 @using Microsoft.AspNetCore.Http
 @using Microsoft.IdentityModel.Tokens
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
 @inject IProfileService ProfileService
 
 <PageTitle>Profile</PageTitle>
@@ -39,7 +37,7 @@
     private string _userName = string.Empty;
 
     private string? Message { get; set; }
-    
+
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
@@ -47,11 +45,11 @@
     protected override async Task OnInitializedAsync()
     {
         _userName = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.Identity?.Name ?? "";
-
         if (_userName.IsNullOrEmpty()) return;
 
-        var profile = await ProfileService.GetProfileAsync(_userName);
+        var profile = await ProfileService.GetProfileAsync();
         Input.PhoneNumber = profile?.PhoneNumber;
+        
         StateHasChanged();
     }
 

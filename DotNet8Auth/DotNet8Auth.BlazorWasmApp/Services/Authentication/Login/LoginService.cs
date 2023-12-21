@@ -29,9 +29,8 @@ public class LoginService(
             response = await _httpClient.PostAsJsonAsync("api/account/login", input);
             result = await response.Content.ReadFromJsonAsync<LoginResult>();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            // TODO logging
             return new AuthLoginResult(SomethingWentWrong);
         }
 

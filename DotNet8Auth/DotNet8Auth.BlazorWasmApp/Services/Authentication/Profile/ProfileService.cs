@@ -9,16 +9,16 @@ public class ProfileService(IHttpClientFactory clientFactory, ISerilogService se
 {
     private readonly HttpClient _http = clientFactory.CreateClient("ServerAPI");
 
-    public async Task<ProfileResult?> GetProfileAsync(string email)
+    public async Task<ProfileResult?> GetProfileAsync()
     {
         try
         {
-            var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile?email={email}");
+            var response = await _http.GetFromJsonAsync<ProfileResult>($"api/account/get-profile");
             return response;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            // TODO logging
+            await serilogService.LogError(exception, nameof(GetProfileAsync));
             return default;
         }
     }
@@ -30,14 +30,12 @@ public class ProfileService(IHttpClientFactory clientFactory, ISerilogService se
         {
             var response = await _http.PostAsJsonAsync("api/account/set-phone-number", model);
             result = await response.Content.ReadFromJsonAsync<ProfileResult>();
-            
         }
         catch (Exception exception)
         {
             await serilogService.LogError(exception, nameof(SetPhoneNumberAsync));
             return new AuthSetPhoneNumberResult(SomethingWentWrong);
         }
-
         return result is { Succeeded: true }
             ? new AuthSetPhoneNumberResult()
             : new AuthSetPhoneNumberResult(SetPhoneNumberUnsuccessful);

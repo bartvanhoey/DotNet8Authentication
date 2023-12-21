@@ -13,11 +13,9 @@
     <div class="dropdown-menu dropdown-menu-right @UserMenuCssClass">
         <AuthorizeView>
             <Authorized>
-                  @* <NavLink class="nav-link"  Match="NavLinkMatch.All">Profile</NavLink> *@
                 <a href="Account/Manage/Profile" class="dropdown-item">Profile</a>
                 <a href="orders" class="dropdown-item">Orders</a>
                 <hr/>
-                <AdminMenu/>
                 <button class="dropdown-item" @onclick="Logout">Logout</button>
             </Authorized>
             <NotAuthorized>
