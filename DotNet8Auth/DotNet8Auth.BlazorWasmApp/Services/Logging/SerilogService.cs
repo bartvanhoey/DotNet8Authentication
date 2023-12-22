@@ -12,7 +12,7 @@ public class SerilogService(IHttpClientFactory clientFactory) : ISerilogService
     {
         try
         {
-            var input = new CreateLogEntryInputModel(level, message);
+            var input = new CreateLogEntryInputModel(level, $"=> {message}" );
             var response = await _http.PostAsJsonAsync("api/serilog/create-log-entry", input);
             await response.Content.ReadFromJsonAsync<SerilogResponse>();
             if (response.IsSuccessStatusCode) return new CreateLogEntryResult();

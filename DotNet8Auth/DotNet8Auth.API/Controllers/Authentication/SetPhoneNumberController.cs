@@ -4,7 +4,6 @@ using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
@@ -52,7 +51,7 @@ public class SetPhoneNumberController(
                 return Ok(
                     new SetPhoneNumberResponse("Success", userName: user.UserName, phoneNumber: model.PhoneNumber));
 
-            logger.LogError($"{nameof(SetPhoneNumber)}: Update phone number went wrong ");
+            logger.LogError($"{nameof(SetPhoneNumber)}: Update phone number went wrong");
             return StatusCode(Status500InternalServerError,
                 new SetPhoneNumberResponse("Error", "update phone number went wrong"));
         }

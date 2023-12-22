@@ -27,7 +27,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
                     return StatusCode(Status500InternalServerError, new UserHasPasswordResponse("Error", result.Error?.Message ?? "something went wrong"));
 
                 var email = HttpContext.User.Identity?.Name;
-                if (email.IsNotNullOrWhiteSpace())
+                if (email.IsNullOrWhiteSpace())
                 {
                     logger.LogError($"{nameof(GetUserHasPassword)}: Email was null");
                     return StatusCode(Status500InternalServerError,
@@ -43,13 +43,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
                 }
 
                 var hasPassword = await userManager.HasPasswordAsync(user);
-                if (!hasPassword)
-                {
-                    logger.LogError($"{nameof(GetUserHasPassword)}: User retrieval went wrong");
-                    return StatusCode(Status500InternalServerError,
-                                    new UserHasPasswordResponse("Error", "User has no password"));
-                }
-                return Ok(new UserHasPasswordResponse("Success", true));
+                return Ok(new UserHasPasswordResponse("Success", hasPassword));
             }
             catch (Exception exception)
             {
