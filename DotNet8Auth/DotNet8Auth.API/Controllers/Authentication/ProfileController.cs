@@ -37,7 +37,7 @@ public class ProfileController(
             {
                 logger.LogError($"{nameof(GetProfile)}: Email was null");
                 return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", result.Error?.Message ?? "something went wrong"));
+                    new ProfileResponse("Error", "Email was null"));
             }
 
             var user = email == null ? null : await userManager.FindByEmailAsync(email);

@@ -40,7 +40,7 @@
 
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm] private SetPhoneNumberInputModel Input { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,17 +56,17 @@
     private async Task OnValidSubmitAsync()
     {
         if (string.IsNullOrWhiteSpace(Input.PhoneNumber)) return;
-        var model = new SetPhoneNumberInputModel { PhoneNumber = Input.PhoneNumber, Email = _userName };
+        var model = new SetPhoneNumberInputModel { PhoneNumber = Input.PhoneNumber};
         var profile = await ProfileService.SetPhoneNumberAsync(model);
         Message = "";
         Message = profile.Succeeded ? "Phone number successfully updated" : "Error: Updating phone number went wrong";
     }
 
-    private sealed class InputModel
+    @* private sealed class InputModel
     {
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
-    }
+    } *@
 
 }

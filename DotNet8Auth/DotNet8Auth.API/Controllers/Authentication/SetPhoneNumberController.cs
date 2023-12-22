@@ -1,8 +1,10 @@
-﻿using DotNet8Auth.Shared.Models.Authentication;
+﻿using DotNet8Auth.Shared.Extensions;
+using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
@@ -29,7 +31,15 @@ public class SetPhoneNumberController(
                 return StatusCode(Status500InternalServerError,
                     new SetPhoneNumberResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
 
-            var user = await userManager.FindByEmailAsync(model.Email);
+            var email = HttpContext.User.Identity?.Name;
+            if (email.IsNullOrWhiteSpace())
+            {
+                logger.LogError($"{nameof(SetPhoneNumber)}: Email was null");
+                return StatusCode(Status500InternalServerError,
+                    new SetPhoneNumberResponse("Error", "email was null"));
+            }
+
+            var user = email == null ? null : await userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 logger.LogError($"{nameof(SetPhoneNumber)}: User retrieval went wrong ");
