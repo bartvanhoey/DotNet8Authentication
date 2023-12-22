@@ -29,7 +29,7 @@ public class ConfirmEmailController(UserManager<ApplicationUser> userManager, IL
             var user = await userManager.FindByIdAsync(model.UserId);
             if (user == null)
             {
-                logger.LogError($"{nameof(ConfirmEmail)}: User retrieval went wrong ");
+                logger.LogError($"{nameof(ConfirmEmail)}: User retrieval went wrong");
                 return StatusCode(Status500InternalServerError,
                     new ConfirmEmailResponse( "Error", "User does not exist"));
             }

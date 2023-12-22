@@ -4,9 +4,7 @@ using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using static System.DateTime;
-using static System.String;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using Convert = System.Convert;
 

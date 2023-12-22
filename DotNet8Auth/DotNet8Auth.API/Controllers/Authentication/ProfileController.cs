@@ -43,7 +43,7 @@ public class ProfileController(
             var user = email == null ? null : await userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong ");
+                logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong");
                 return StatusCode(Status500InternalServerError,
                     new ProfileResponse("Error", "User retrieval went wrong"));
             }
