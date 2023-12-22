@@ -21,5 +21,6 @@ public static class RegisterAuthenticationServices
         services.AddScoped<IResetPasswordService, ResetPasswordService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<ILogoutService,LogoutService>();
+        services.AddScoped<IIdentityAccessor, IdentityAccessor>();
     }
 }

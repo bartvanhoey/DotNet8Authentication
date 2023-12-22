@@ -16,6 +16,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
+
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddAuthorizationCore();

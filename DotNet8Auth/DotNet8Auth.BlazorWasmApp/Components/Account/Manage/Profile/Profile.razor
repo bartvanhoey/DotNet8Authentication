@@ -6,6 +6,7 @@
 @using Microsoft.IdentityModel.Tokens
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IIdentityAccessor IdentityAccessor
 @inject IProfileService ProfileService
 
 <PageTitle>Profile</PageTitle>
@@ -44,7 +45,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _userName = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.Identity?.Name ?? "";
+
+        _userName  = await IdentityAccessor.GetUserNameAsync();
+
+        @* _userName = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.Identity?.Name ?? ""; *@
         if (_userName.IsNullOrEmpty()) return;
 
         var profile = await ProfileService.GetProfileAsync();
@@ -62,11 +66,5 @@
         Message = profile.Succeeded ? "Phone number successfully updated" : "Error: Updating phone number went wrong";
     }
 
-    @* private sealed class InputModel
-    {
-        [Phone]
-        [Display(Name = "Phone number")]
-        public string? PhoneNumber { get; set; }
-    } *@
 
 }
