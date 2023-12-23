@@ -24,7 +24,7 @@ public class ForgotPasswordController(
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(ResendEmailConfirmation));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(ResendEmailConfirmation));
             if (validationResult.IsFailure) 
                 return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
             

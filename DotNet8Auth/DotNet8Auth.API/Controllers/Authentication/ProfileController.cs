@@ -25,9 +25,7 @@ public class ProfileController(
     {
         try
         {
-            var model = new GetProfileInputModel();
-
-            var result = ValidateInputModel(model, logger, nameof(GetProfile));
+            var result = ValidateController(logger, nameof(GetProfile));
             if (result.IsFailure)
                 return StatusCode(Status500InternalServerError,
                     new ProfileResponse("Error", result.Error?.Message ?? "something went wrong"));

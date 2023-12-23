@@ -1,7 +1,6 @@
 using DotNet8Auth.Shared.Extensions;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.ChangePassword;
-using DotNet8Auth.Shared.Models.Authentication.Profile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +19,7 @@ public class UserHasPasswordController(UserManager<ApplicationUser> userManager,
     {
         try
         {
-            var model = new ChangePasswordInputModel();
-
-            var result = ValidateInputModel(model, logger, nameof(GetUserHasPassword));
+            var result = ValidateController(logger, nameof(GetUserHasPassword));
             if (result.IsFailure)
                 return StatusCode(Status500InternalServerError, new UserHasPasswordResponse("Error", result.Error?.Message ?? "something went wrong"));
 

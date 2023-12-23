@@ -6,8 +6,5 @@ namespace DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;
 public class ResendEmailConfirmationInputModel : BaseInputModel
 {
     [Required] [EmailAddress] public string Email { get; set; } = "";
-
-    // [Required]
-    // [Url]
-    // public string CallbackUrl { get; set; } = "";
+   
 }

@@ -27,7 +27,7 @@ public class LoginController(
     {
         try
         {
-            var result = ValidateInputModel(model, logger, nameof(Login));
+            var result = ValidateControllerInputModel(model, logger, nameof(Login));
             if (result.IsFailure) 
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
             

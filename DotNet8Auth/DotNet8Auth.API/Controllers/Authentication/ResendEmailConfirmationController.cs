@@ -5,7 +5,6 @@ using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using static System.String;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
@@ -26,7 +25,7 @@ public class ResendEmailConfirmationController(
     {
         try
         {
-            var result = ValidateInputModel(model, logger, nameof(ResendEmailConfirmation));
+            var result = ValidateControllerInputModel(model, logger, nameof(ResendEmailConfirmation));
             if (result.IsFailure)
                 return StatusCode(Status500InternalServerError,
                     new ResendEmailConfirmationResponse("Error", result.Error?.Message ?? "something went wrong"));

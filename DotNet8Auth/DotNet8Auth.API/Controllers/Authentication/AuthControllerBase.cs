@@ -42,33 +42,39 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         return token;
     }
 
-    protected Result<ValidateInputModelResult> ValidateInputModel<T>(BaseInputModel? input, ILogger<T> logger,
+
+    protected Result<ValidateControllerResult> ValidateControllerInputModel<T>(BaseInputModel? input, ILogger<T> logger,
         string methodName)
     {
+
         if (input is null)
         {
             logger.LogError("{MethodName}: input is null", methodName);
-            return Fail<ValidateInputModelResult>(new ResultError("input is null"));
+            return Fail<ValidateControllerResult>(new ResultError("input is null"));
         }
+        return ValidateController(logger, methodName);
+    }
 
+    protected Result<ValidateControllerResult> ValidateController<T>(ILogger<T> logger, string methodName)
+    {
         var securityKey = configuration["Jwt:SecurityKey"];
         if (IsNullOrEmpty(securityKey))
         {
             logger.LogError("{MethodName}: security key is null", methodName);
-            return Fail<ValidateInputModelResult>(new ResultError("security key is null"));
+            return Fail<ValidateControllerResult>(new ResultError("security key is null"));
         }
 
         var validIssuer = configuration["Jwt:ValidIssuer"];
         if (IsNullOrEmpty(validIssuer))
         {
             logger.LogError("{MethodName}: valid issuer is null", methodName);
-            return Fail<ValidateInputModelResult>(new ResultError("valid issuer is null"));
+            return Fail<ValidateControllerResult>(new ResultError("valid issuer is null"));
         }
 
         var originResult =  ValidateOrigin(logger, methodName);
         return originResult.IsSuccess
-            ? Result.Ok(new ValidateInputModelResult(securityKey, validIssuer, originResult.Value.Origin))
-            : Fail<ValidateInputModelResult>(
+            ? Result.Ok(new ValidateControllerResult(securityKey, validIssuer, originResult.Value.Origin))
+            : Fail<ValidateControllerResult>(
                 new ResultError(originResult?.Error?.Message ?? "something went wrong"));
     }
 
@@ -97,7 +103,7 @@ public class ValidateOriginResult(string origin)
     public string Origin { get; } = origin;
 }
 
-public class ValidateInputModelResult(
+public class ValidateControllerResult(
     string securityKey,
     string validIssuer,
     string origin)

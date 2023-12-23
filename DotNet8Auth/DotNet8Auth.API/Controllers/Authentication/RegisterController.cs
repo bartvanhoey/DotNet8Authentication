@@ -26,7 +26,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(Register));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(Register));
             if (validationResult.IsFailure) 
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
 

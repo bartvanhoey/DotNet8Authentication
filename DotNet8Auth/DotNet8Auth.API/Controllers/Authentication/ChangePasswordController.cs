@@ -18,7 +18,7 @@ public class ChangePasswordController(UserManager<ApplicationUser> userManager, 
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(ChangePassword));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(ChangePassword));
             if (validationResult.IsFailure)
                 return StatusCode(Status500InternalServerError,
                     new ChangePasswordResponse("Error", validationResult.Error?.Message ?? "something went wrong"));

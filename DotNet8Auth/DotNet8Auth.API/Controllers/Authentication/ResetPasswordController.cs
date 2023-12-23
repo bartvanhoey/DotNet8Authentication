@@ -22,7 +22,7 @@ public class ResetPasswordController(UserManager<ApplicationUser> userManager, I
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(ResetPassword));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(ResetPassword));
             if (validationResult.IsFailure) 
                 return StatusCode(Status500InternalServerError, new ResetPasswordResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
 

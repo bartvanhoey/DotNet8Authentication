@@ -29,7 +29,7 @@ public class RefreshController(
     {
         try
         {
-            var result = ValidateInputModel(model, logger, nameof(Refresh));
+            var result = ValidateControllerInputModel(model, logger, nameof(Refresh));
             if (result.IsFailure) 
                 return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
 

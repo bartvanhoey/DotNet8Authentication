@@ -25,7 +25,7 @@ public class SetPhoneNumberController(
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(SetPhoneNumber));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(SetPhoneNumber));
             if (validationResult.IsFailure)
                 return StatusCode(Status500InternalServerError,
                     new SetPhoneNumberResponse("Error", validationResult.Error?.Message ?? "something went wrong"));

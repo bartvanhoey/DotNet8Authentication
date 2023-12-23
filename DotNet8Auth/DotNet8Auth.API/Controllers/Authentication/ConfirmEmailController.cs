@@ -22,7 +22,7 @@ public class ConfirmEmailController(UserManager<ApplicationUser> userManager, IL
     {
         try
         {
-            var validationResult = ValidateInputModel(model, logger, nameof(ConfirmEmail));
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(ConfirmEmail));
             if (validationResult.IsFailure) 
                 return StatusCode(Status500InternalServerError, new ConfirmEmailResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
             

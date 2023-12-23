@@ -1,4 +1,5 @@
-﻿using DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;
+﻿using DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail;
+using DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ConfirmEmail;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ForgotPassword;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Login;
@@ -25,5 +26,6 @@ public static class RegisterAuthenticationServices
         services.AddScoped<IIdentityAccessor, IdentityAccessor>();
         services.AddScoped<IUserHasPasswordService, UserHasPasswordService>();
         services.AddScoped<IChangePasswordService, ChangePasswordService>();
+        services.AddScoped<IChangeEmailService, ChangeEmailService>();
     }
 }
