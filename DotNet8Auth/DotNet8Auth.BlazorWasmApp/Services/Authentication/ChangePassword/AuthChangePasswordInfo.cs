@@ -1,9 +1,8 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;
+
+public enum AuthChangePasswordInfo
 {
-    public enum AuthChangePasswordInfo
-    {
-        Successful = 0,
-        PasswordInvalid = 1,
-        SomethingWentWrong = 2,
-    }
+    Successful = 0,
+    PasswordInvalid = 1,
+    SomethingWentWrong = 2,
 }

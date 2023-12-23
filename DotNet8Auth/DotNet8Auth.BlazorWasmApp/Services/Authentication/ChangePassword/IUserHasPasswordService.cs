@@ -1,9 +1,6 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;
+
+public interface IUserHasPasswordService
 {
-    public interface IUserHasPasswordService
-    {
-        Task<AuthUserHasPasswordResult> UserHasPasswordAsync();
-    }
-
-
+    Task<AuthUserHasPasswordResult> UserHasPasswordAsync();
 }
