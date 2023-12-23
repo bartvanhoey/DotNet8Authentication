@@ -9,5 +9,6 @@ namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail
     {
         Task<AuthIsEmailConfirmedResult> IsEmailConfirmedAsync();
         Task<AuthChangeEmailResult> ChangeEmailAsync(string newEmail);
+        Task<AuthConfirmChangeEmailResult> ConfirmChangeEmailAsync(string newEmail, string code);
     }
 }

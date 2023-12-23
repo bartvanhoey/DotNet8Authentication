@@ -4,6 +4,7 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using DotNet8Auth.Shared.Models.Authentication.ChangeEmail
 
 @inject IIdentityAccessor IdentityAccessor
 @inject NavigationManager NavigationManager
@@ -89,10 +90,11 @@ private HttpContext HttpContext { get; set; } = default!; *@
         var result = await ChangeEmailService.ChangeEmailAsync(Input.NewEmail);
         if (result.Succeeded)
         {
-            message = "Confirmation link to change email sent. Please check your email.";            
+            message = "Confirmation link to change email sent. Please check your email.";
         }
-            
-        @* var userId = await UserManager.GetUserIdAsync(user);
+    }
+
+    @* var userId = await UserManager.GetUserIdAsync(user);
 var code = await UserManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 var callbackUrl = NavigationManager.GetUriWithQueryParameters(
@@ -102,11 +104,11 @@ new Dictionary<string, object?> { ["userId"] = userId, ["email"] = Input.NewEmai
 await EmailSender.SendConfirmationLinkAsync(user, Input.NewEmail, HtmlEncoder.Default.Encode(callbackUrl));
 
 
-    }
+}
+{ *@
 
-    private async Task OnSendEmailVerificationAsync()
-    {
-        @* if (email is null)
+    private async Task OnSendEmailVerificationAsync(){}
+    @* if (email is null)
 {
 return;
 }
@@ -122,13 +124,6 @@ new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
 await EmailSender.SendConfirmationLinkAsync(user, email, HtmlEncoder.Default.Encode(callbackUrl));
 
 message = "Verification email sent. Please check your email."; *@
-    }
-
-    private sealed class ChangeEmailInputModel
-    {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "New email")]
-        public string? NewEmail { get; set; }
-    }
 }
+
+

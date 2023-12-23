@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using System.Text.Encodings.Web;
 using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotNet8Auth.API.Controllers.Authentication
 {
@@ -19,6 +20,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
     {
 
         [HttpPost]
+        [Authorize]
         [Route("change-email")]
         public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailInputModel model)
         {
@@ -49,7 +51,7 @@ namespace DotNet8Auth.API.Controllers.Authentication
 
                 var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ConfirmEmailChange";
                 var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
-                { ["userId"] = userId, ["code"] = code });
+                { ["userId"] = userId, ["email"] = model.NewEmail, ["code"] = code });
 
                 await emailSender.SendConfirmationLinkAsync(user, model.NewEmail, HtmlEncoder.Default.Encode(confirmationLink));
 
