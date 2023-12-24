@@ -44,33 +44,34 @@ public class ConfirmChangeEmailController(UserManager<ApplicationUser> userManag
                 return StatusCode(Status500InternalServerError, new ConfirmChangeEmailResponse("Error", "User retrieval went wrong"));
             }
 
-            var code = UTF8.GetString(Base64UrlDecode(model.Code));
-            if (code.IsNullOrWhiteSpace())
+            if (model.Code.IsNullOrWhiteSpace())
             {
                 logger.LogError($"{nameof(ConfirmChangeEmail)}: Code is null");
                 return StatusCode(Status500InternalServerError, new ConfirmChangeEmailResponse("Error", "Code is null"));
-            }                
-                
-            IdentityResult? updateUserResult =null;
-            var changeEmailResult = await userManager.ChangeEmailAsync(user, model.NewEmail, code);
-            if (changeEmailResult.Succeeded){
-                user.UserName = model.NewEmail;
-                updateUserResult = await userManager.UpdateAsync(user);
             }  
-
-            if (updateUserResult is { Succeeded: true } && changeEmailResult.Succeeded)
-                return Ok(new ConfirmChangeEmailResponse("Success", "Email confirmed successfully"));    
-                                
-            if (updateUserResult is { Succeeded: false })
+            var code = UTF8.GetString(Base64UrlDecode(model.Code));
+                
+            var changeEmailResult = await userManager.ChangeEmailAsync(user, model.NewEmail, code);
+            if (changeEmailResult.Succeeded)
             {
-                var updateUserError = $"{updateUserResult.Errors.FirstOrDefault()?.Code}: {updateUserResult.Errors.FirstOrDefault()?.Description} ";
+                var setUserNameResult = await userManager.SetUserNameAsync(user, model.NewEmail);
+                if (setUserNameResult is { Succeeded: true }) // change user name also
+                    return Ok(new ConfirmChangeEmailResponse("Success", "Email confirmed successfully"));
+                
+                await userManager.ChangeEmailAsync(user, email ?? throw new InvalidOperationException(), code); // if user name could not be changed, set email back to old email
+                
+                var updateUserError = $"{setUserNameResult.Errors.FirstOrDefault()?.Code}: {setUserNameResult.Errors.FirstOrDefault()?.Description} ";
                 logger.LogError("{ConfirmChangeEmailName}: {UpdateUserError}", nameof(ConfirmChangeEmail), updateUserError);
-                return StatusCode(Status500InternalServerError, new ConfirmChangeEmailResponse("Error", updateUserResult.Errors.Select(x => new ConfirmChangeEmailError(x.Code, x.Description))));
+                return StatusCode(Status500InternalServerError, new ConfirmChangeEmailResponse("Error", setUserNameResult.Errors.Select(x => new ConfirmChangeEmailError(x.Code, x.Description))));
             }
 
-            var confirmChangeEmailError = $"{changeEmailResult.Errors.FirstOrDefault()?.Code}: {changeEmailResult.Errors.FirstOrDefault()?.Description} ";
-            logger.LogError("{ConfirmChangeEmailName}: {ConfirmChangeEmailError}", nameof(ConfirmChangeEmail), confirmChangeEmailError);
-            return StatusCode(Status500InternalServerError, new ConfirmChangeEmailResponse("Error", changeEmailResult.Errors.Select(x => new ConfirmChangeEmailError(x.Code, x.Description))));
+            var confirmChangeEmailError =
+                $"{changeEmailResult.Errors.FirstOrDefault()?.Code}: {changeEmailResult.Errors.FirstOrDefault()?.Description} ";
+            logger.LogError("{ConfirmChangeEmailName}: {ConfirmChangeEmailError}", nameof(ConfirmChangeEmail),
+                confirmChangeEmailError);
+            return StatusCode(Status500InternalServerError,
+                new ConfirmChangeEmailResponse("Error",
+                    changeEmailResult.Errors.Select(x => new ConfirmChangeEmailError(x.Code, x.Description))));
         }
         catch (Exception exception)
         {
