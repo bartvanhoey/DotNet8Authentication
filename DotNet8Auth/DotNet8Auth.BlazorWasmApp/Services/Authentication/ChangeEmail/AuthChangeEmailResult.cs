@@ -1,15 +1,12 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail;
+
+public class AuthChangeEmailResult(AuthChangeEmailInfo message)
 {
-
-    public class AuthChangeEmailResult(AuthChangeEmailInfo message)
+    public AuthChangeEmailResult() : this(AuthChangeEmailInfo.Successful)
     {
-        public AuthChangeEmailResult() : this(AuthChangeEmailInfo.Successful)
-        {
-        }
-
-        public bool Succeeded => Message == AuthChangeEmailInfo.Successful;
-        public AuthChangeEmailInfo Message { get; } = message;
-
     }
+
+    public bool Succeeded => Message == AuthChangeEmailInfo.Successful;
+    public AuthChangeEmailInfo Message { get; } = message;
 
 }

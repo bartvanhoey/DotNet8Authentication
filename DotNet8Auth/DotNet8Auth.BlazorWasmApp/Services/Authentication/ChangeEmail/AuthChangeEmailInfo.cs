@@ -1,8 +1,7 @@
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail
+namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail;
+
+public enum AuthChangeEmailInfo
 {
-    public enum AuthChangeEmailInfo
-    {
-        Successful = 0,
-        SomethingWentWrong = 2,
-    }
+    Successful = 0,
+    SomethingWentWrong = 2,
 }

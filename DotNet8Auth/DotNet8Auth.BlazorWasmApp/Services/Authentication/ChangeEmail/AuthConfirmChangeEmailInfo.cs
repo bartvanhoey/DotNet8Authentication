@@ -1,7 +1,7 @@
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangeEmail;
 
-public enum AuthIsEmailConfirmedMessage
+public enum AuthConfirmChangeEmailInfo
 {
     Success = 0,
-    SomethingWentWrong = 1,
+    SomethingWentWrong = 2,
 }

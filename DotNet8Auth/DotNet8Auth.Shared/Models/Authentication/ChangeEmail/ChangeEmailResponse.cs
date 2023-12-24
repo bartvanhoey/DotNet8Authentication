@@ -1,18 +1,8 @@
-namespace DotNet8Auth.Shared.Models.Authentication.ChangeEmail
+namespace DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
+public class ChangeEmailResponse(string status, string message)
 {
-    public class ChangeEmailResponse
-    {
+    public string? Status { get; set; } = status;
 
-        public ChangeEmailResponse() { }
-
-        public ChangeEmailResponse(string status, string message)
-        {
-            Status = status;
-            Message = message;
-        }
-
-        public string? Status { get; set; }
-        
-        public string? Message { get; set; }
-    }
+    public string? Message { get; set; } = message;
 }

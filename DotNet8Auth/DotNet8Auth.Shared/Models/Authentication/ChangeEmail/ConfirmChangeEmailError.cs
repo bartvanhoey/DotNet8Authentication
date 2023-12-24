@@ -1,8 +1,7 @@
-namespace DotNet8Auth.Shared.Models.Authentication.ChangeEmail
+namespace DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
+public class ConfirmChangeEmailError(string code, string description)
 {
-    public class ConfirmChangeEmailError(string code, string description)
-    {
-        public string Code { get; } = code;
-        public string Description { get; } = description;
-    }
+    public string Code { get; } = code;
+    public string Description { get; } = description;
 }
