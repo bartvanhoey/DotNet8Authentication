@@ -1,6 +1,8 @@
+using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
 namespace DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
 
-public class ConfirmEmailResponse
+public class ConfirmEmailResponse : IControllerResponse
 {
     public ConfirmEmailResponse()
     {
@@ -14,6 +16,7 @@ public class ConfirmEmailResponse
 
     public string? Status { get; set; }
     public string? Message { get; set; }
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
     public string? Code { get; set; }
     public string? UserId { get; set; }
 }

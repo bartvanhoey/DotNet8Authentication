@@ -1,13 +1,27 @@
+using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
 namespace DotNet8Auth.Shared.Models.Authentication.ChangePassword;
 
-public class ChangePasswordResponse(string? status)
+public class ChangePasswordResponse : IControllerResponse
 {
-    public ChangePasswordResponse(string? status, string? message) : this(status) => Message = message;
-    public ChangePasswordResponse(string? status, IEnumerable<ChangePasswordError> errors) : this(status) => Errors = errors;
+    public ChangePasswordResponse()
+    {
+        
+    }
 
-    public string? Status { get; set; } = status;
+    public ChangePasswordResponse(string? status, string? message)
+    {
+        Status = status;
+        Message = message;
+    }
+
+    public ChangePasswordResponse(string? status, IEnumerable<ControllerResponseError> errors)
+    {
+        Status = status;
+        Errors = errors;
+    } 
+
+    public string? Status { get; set; } 
     public string? Message { get; set; }
-
-    public IEnumerable<ChangePasswordError>? Errors { get; set; }
-
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
 }

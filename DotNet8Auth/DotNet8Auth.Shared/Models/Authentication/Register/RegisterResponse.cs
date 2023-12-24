@@ -1,6 +1,8 @@
+using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
 namespace DotNet8Auth.Shared.Models.Authentication.Register;
 
-public class RegisterResponse
+public class RegisterResponse : IControllerResponse
 {
     public RegisterResponse()
     {
@@ -24,5 +26,5 @@ public class RegisterResponse
     public string? Code { get; set; }
     public string? UserId { get; set; }
     public string? Message { get; set; }
-
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
 }

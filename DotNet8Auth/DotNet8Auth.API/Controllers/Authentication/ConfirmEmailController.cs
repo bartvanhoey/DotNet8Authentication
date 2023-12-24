@@ -23,32 +23,22 @@ public class ConfirmEmailController(UserManager<ApplicationUser> userManager, IL
         try
         {
             var validationResult = ValidateControllerInputModel(model, logger, nameof(ConfirmEmail));
-            if (validationResult.IsFailure) 
-                return StatusCode(Status500InternalServerError, new ConfirmEmailResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
+            if (validationResult.IsFailure) return Nok500<ConfirmEmailResponse>(logger, validationResult.Error?.Message);
             
             var user = await userManager.FindByIdAsync(model.UserId);
-            if (user == null)
-            {
-                logger.LogError($"{nameof(ConfirmEmail)}: User retrieval went wrong");
-                return StatusCode(Status500InternalServerError,
-                    new ConfirmEmailResponse( "Error", "User does not exist"));
-            }
+            if (user == null) return Nok500CouldNotFindUser<ConfirmEmailResponse>(logger);
 
             var code = UTF8.GetString(Base64UrlDecode(model.Code));
             var result = await userManager.ConfirmEmailAsync(user, code);
 
-            if (result.Succeeded)
-                return Ok(new ConfirmEmailResponse { Status = "Success", Message = "Confirm email successful" });
-
-            logger.LogError($"{nameof(ConfirmEmail)}: Confirm email failed! Please try again");
-            return StatusCode(Status500InternalServerError,
-                new RegisterResponse { Status = "Error", Message = "Confirm email failed! Please try again" });
+            return result.Succeeded 
+                ? Ok200<ConfirmEmailResponse>("Confirm email successful") 
+                : Nok500<ConfirmEmailResponse>(logger, "Confirm email failed! Please try again");
         }
         catch (Exception exception)
         {
             logger.LogError(exception, nameof(ConfirmEmail));
-            return StatusCode(Status500InternalServerError,
-                new RegisterResponse { Status = "Error", Message = "Something went wrong" });
+            return Nok500<ConfirmEmailResponse>(logger);
         }
     }
 }

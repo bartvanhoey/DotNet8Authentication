@@ -24,31 +24,20 @@ public class ConfirmChangeEmailController(
         try
         {
             var validationResult = ValidateControllerInputModel(model, logger, nameof(ConfirmChangeEmail));
-            if (validationResult.IsFailure)
-                return Nok500<ConfirmChangeEmailResponse>(logger, validationResult.Error?.Message);
+            if (validationResult.IsFailure) return Nok500<ConfirmChangeEmailResponse>(logger, validationResult.Error?.Message);
 
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                return Nok500<ConfirmChangeEmailResponse>(logger, "User retrieval went wrong");
-            }
+            if (user == null) return Nok500CouldNotFindUser<ConfirmChangeEmailResponse>(logger);
 
-            if (model.Code.IsNullOrWhiteSpace())
-            {
-                return Nok500<ConfirmChangeEmailResponse>(logger, "Code is null");
-            }
+            if (model.Code.IsNullOrWhiteSpace()) return Nok500CodeIsNull<ConfirmChangeEmailResponse>(logger);
 
             var code = UTF8.GetString(Base64UrlDecode(model.Code));
 
             var changeEmailResult = await userManager.ChangeEmailAsync(user, model.NewEmail, code);
-            if (!changeEmailResult.Succeeded)
-                return Nok500<ConfirmChangeEmailResponse>(changeEmailResult.Errors, logger);
+            if (!changeEmailResult.Succeeded) return Nok500<ConfirmChangeEmailResponse>(changeEmailResult.Errors, logger);
            
-            var setUserNameResult =
-                await userManager.SetUserNameAsync(user, model.NewEmail); // change user name also
-
-            if (setUserNameResult is { Succeeded: true })
-                return Ok200<ConfirmChangeEmailResponse>("Email confirmed successfully");
+            var setUserNameResult = await userManager.SetUserNameAsync(user, model.NewEmail); // change user name also
+            if (setUserNameResult is { Succeeded: true }) return Ok200<ConfirmChangeEmailResponse>("Email confirmed successfully");
 
             await userManager.ChangeEmailAsync(user, model.Email ?? throw new InvalidOperationException(),
                 code); // if user name could not be changed, set email back to old email

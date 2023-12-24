@@ -1,15 +1,11 @@
-using System.Text;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Extensions;
-using DotNet8Auth.Shared.Models.Authentication.Login;
 using DotNet8Auth.Shared.Models.Authentication.Register;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.IdentityModel.Tokens;
 using static System.Activator;
-
-using static Microsoft.AspNetCore.Http.StatusCodes;
+using static System.Text.Encoding;
+using static Microsoft.AspNetCore.WebUtilities.WebEncoders;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
 
@@ -27,50 +23,28 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
         try
         {
             var validationResult = ValidateControllerInputModel(model, logger, nameof(Register));
-            if (validationResult.IsFailure) 
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
-
+            if (validationResult.IsFailure) return Nok500<RegisterResponse>(logger, validationResult.Error?.Message);
 
             var callbackUrl = $"{HttpContext.Request.Headers.Origin.FirstOrDefault()}/Account/ConfirmEmail";
-            if (IsNullOrEmpty(model.Email))
-            {
-                logger.LogError($"{nameof(Register)}: email is null");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Email"));
-            }
+            if (IsNullOrEmpty(model.Email)) return Nok500<RegisterResponse>(logger, "Email is null");
 
-            if (IsNullOrEmpty(model.Password))
-            {
-                logger.LogError($"{nameof(Register)}: password is null");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Empty Password"));
-            }
+            if (IsNullOrEmpty(model.Password)) return Nok500<RegisterResponse>(logger, "Password is null");
 
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (user != null)
-            {
-                // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
-                logger.LogError($"{nameof(Register)}: user '{model.Email}' already exists");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User already exists"));
-            }
+            if (user != null) return Nok500<RegisterResponse>(logger, $"{nameof(Register)}: user '{model.Email}' already exists");
 
             var newUser = CreateUser();
-            if (newUser == null)
-            {
-                logger.LogError($"{nameof(Register)}: new user is null");
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "CreateUser failed"));
-            }
+            if (newUser == null) return Nok500<RegisterResponse>(logger, "New user is null");
 
             newUser.Email = model.Email;
             newUser.UserName = model.Email;
 
             var result = await userManager.CreateAsync(newUser, model.Password);
-            if (!result.Succeeded)
-            {
-                return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "User creation failed"));
-            }
+            if (!result.Succeeded) return Nok500<RegisterResponse>(logger, "User creation failed");
 
             var userId = await userManager.GetUserIdAsync(newUser);
             var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            code = Base64UrlEncode(UTF8.GetBytes(code));
             
             var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
                 { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
@@ -80,8 +54,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, nameof(Register));
-            return StatusCode(Status500InternalServerError, new RegisterResponse("Error", "Something went wrong"));
+            return Nok500<RegisterResponse>(logger, exception);
         }
     }
         

@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using static DotNet8Auth.Shared.Functional.Result;
 using static Microsoft.AspNetCore.Http.StatusCodes;
-using ArgumentNullException = System.ArgumentNullException;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
 
@@ -60,7 +59,18 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         return StatusCode(Status500InternalServerError, controllerResponse);
     }
     
-    protected IActionResult Nok500<T>(ILogger logger, Exception exception, [CallerMemberName] string memberName = "") where T : IControllerResponse
+    protected IActionResult Nok500EmailIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+        => Nok500<T>(logger, "Email is null", memberName);
+    
+    protected IActionResult Nok500CodeIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+        => Nok500<T>(logger, "Code is null", memberName);
+    
+    protected IActionResult Nok500CouldNotFindUser<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+        => Nok500<T>(logger, "Could not find user", memberName);
+    
+    
+
+    protected IActionResult Nok500<T>(ILogger logger, Exception exception, string? errorMessage =null , [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
         logger.LogError(exception, memberName);
@@ -68,15 +78,20 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
             return StatusCode(Status500InternalServerError);
 
         controllerResponse.Status = "Error";
-        controllerResponse.Message = "Something went wrong";
+        controllerResponse.Message = errorMessage.IsNullOrWhiteSpace() ? "Something went wrong": errorMessage;
         return StatusCode(Status500InternalServerError, controllerResponse);
     }
     
     
 
-    protected IActionResult Ok200<T>(string message) where T : IControllerResponse
-        => Ok(new ConfirmChangeEmailResponse("Success",
-            message.IsNullOrWhiteSpace() ? "success" : "Email confirmed successfully"));
+    protected IActionResult Ok200<T>(string? message = null)
+    {
+        var controllerResponse = Activator.CreateInstance(typeof(T)) as IControllerResponse;
+        if (controllerResponse == null) return Ok();
+        controllerResponse.Status = "Success";
+        controllerResponse.Message = message.IsNullOrWhiteSpace() ? "success" : message;
+        return Ok(controllerResponse);
+    }
 
     protected IActionResult Nok500<T>(IEnumerable<IdentityError>? errors, ILogger logger,
         [CallerMemberName] string memberName = "") where T : IControllerResponse
@@ -131,7 +146,7 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         return originResult.IsSuccess
             ? Result.Ok(new ValidateControllerResult(securityKey, validIssuer, originResult.Value.Origin))
             : Fail<ValidateControllerResult>(
-                new ResultError(originResult?.Error?.Message ?? "something went wrong"));
+                new ResultError(originResult.Error?.Message ?? "something went wrong"));
     }
 
     protected Result<ValidateOriginResult> ValidateOrigin<T>(ILogger<T> logger, string methodName)
@@ -150,19 +165,4 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         logger.LogError("{MethodName}: origin is wrong", methodName);
         return Fail<ValidateOriginResult>(new ResultError("origin is wrong"));
     }
-}
-
-public class ValidateOriginResult(string origin)
-{
-    public string Origin { get; } = origin;
-}
-
-public class ValidateControllerResult(
-    string securityKey,
-    string validIssuer,
-    string origin)
-{
-    public string SecurityKey { get; } = securityKey;
-    public string ValidIssuer { get; } = validIssuer;
-    public string Origin { get; } = origin;
 }
