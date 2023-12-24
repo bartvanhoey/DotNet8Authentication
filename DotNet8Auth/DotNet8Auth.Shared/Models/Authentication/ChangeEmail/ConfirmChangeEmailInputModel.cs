@@ -10,12 +10,14 @@ public class ConfirmChangeEmailInputModel : BaseInputModel
     {
     }
 
-    public ConfirmChangeEmailInputModel(string newEmail, string code)
+    public ConfirmChangeEmailInputModel(string email, string newEmail, string code)
     {
+        Email = email;
         NewEmail = newEmail;
         Code = code;
     }
 
+    [Required][EmailAddress] public string Email { get; set; }
     [Required][EmailAddress] public string NewEmail { get; set; } = "";
     [Required] public string Code { get; set; } = "";
 }

@@ -28,13 +28,14 @@ public class ChangeEmailService(IHttpClientFactory clientFactory, ISerilogServic
         }
     }
 
-    public async Task<AuthConfirmChangeEmailResult> ConfirmChangeEmailAsync(string newEmail, string code)
+    public async Task<AuthConfirmChangeEmailResult> ConfirmChangeEmailAsync(string email, string newEmail, string code)
     {
         try
         {
+            ThrowIfNull(email);
             ThrowIfNull(newEmail);
             ThrowIfNull(code);
-            var model = new ConfirmChangeEmailInputModel(newEmail, code);
+            var model = new ConfirmChangeEmailInputModel(email, newEmail, code);
             var response = await _http.PostAsJsonAsync("api/account/confirm-change-email", model);
             var result = await response.Content.ReadFromJsonAsync<ConfirmChangeEmailResult>();
             if (result is { Succeeded: true }) return new AuthConfirmChangeEmailResult();

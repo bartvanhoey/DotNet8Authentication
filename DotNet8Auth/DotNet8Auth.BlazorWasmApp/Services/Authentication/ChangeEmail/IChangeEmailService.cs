@@ -9,5 +9,5 @@ public interface IChangeEmailService
 {
     Task<AuthIsEmailConfirmedResult> IsEmailConfirmedAsync();
     Task<AuthChangeEmailResult> ChangeEmailAsync(string newEmail);
-    Task<AuthConfirmChangeEmailResult> ConfirmChangeEmailAsync(string newEmail, string code);
+    Task<AuthConfirmChangeEmailResult> ConfirmChangeEmailAsync(string email, string newEmail, string code);
 }

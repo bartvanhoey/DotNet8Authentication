@@ -51,7 +51,7 @@ public class ChangeEmailController(UserManager<ApplicationUser> userManager, IEm
             var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ConfirmEmailChange";
             var userId = await userManager.GetUserIdAsync(user);
             var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
-                { ["userId"] = userId, ["email"] = model.NewEmail, ["code"] = code });
+                { ["userId"] = userId, ["email"] = user.Email, ["newEmail"] = model.NewEmail, ["code"] = code });
 
             await emailSender.SendConfirmationLinkAsync(user, model.NewEmail, HtmlEncoder.Default.Encode(confirmationLink));
 
