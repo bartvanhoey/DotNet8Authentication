@@ -25,28 +25,16 @@ public class ForgotPasswordController(
         try
         {
             var validationResult = ValidateControllerInputModel(model, logger, nameof(ResendEmailConfirmation));
-            if (validationResult.IsFailure) 
-                return StatusCode(Status500InternalServerError, new ForgotPasswordResponse("Error", validationResult.Error?.Message ?? "something went wrong"));
-            
-            var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ResetPassword";
+            if (validationResult.IsFailure) return Nok500<ForgotPasswordResponse>(logger, validationResult.Error?.Message);
             
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: user is null");
-                return StatusCode(Status500InternalServerError,
-                    new ForgotPasswordResponse("Error", "Forgot password retrieving user went wrong"));
-            }
+            if (user == null) return Nok500CouldNotFindUser<ForgotPasswordResponse>(logger);
 
-            if (!await userManager.IsEmailConfirmedAsync(user))
-            {
-                logger.LogError($"{nameof(ResendEmailConfirmation)}: User email is not confirmed");
-                return StatusCode(Status500InternalServerError,
-                    new ForgotPasswordResponse("Error", "Forgot password went wrong"));
-            }
+            if (!await userManager.IsEmailConfirmedAsync(user)) return Nok500<ForgotPasswordResponse>(logger, "Email not confirmed");
 
             var code = await userManager.GeneratePasswordResetTokenAsync(user);
             code = Base64UrlEncode(UTF8.GetBytes(code));
+            var callbackUrl = $"{HttpContext.Request.Headers.Origin}/Account/ResetPassword";
             var resetLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?> { ["code"] = code });
 
             await emailSender.SendPasswordResetLinkAsync(user, model.Email, resetLink);
@@ -55,9 +43,7 @@ public class ForgotPasswordController(
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, nameof(ResendEmailConfirmation));
-            return StatusCode(Status500InternalServerError,
-                new ForgotPasswordResponse("Error", "Forgot password went wrong"));
+            return Nok500<ForgotPasswordResponse>(logger, exception); 
         }
     }
 }

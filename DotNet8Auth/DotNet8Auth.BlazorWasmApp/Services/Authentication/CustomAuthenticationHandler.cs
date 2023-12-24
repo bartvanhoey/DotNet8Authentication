@@ -35,7 +35,7 @@ public class CustomAuthenticationHandler(
         catch (Exception e)
         {
             if (e.GetType() == typeof(HttpRequestException))
-                WriteLine("API down?");
+                WriteLine("----");
             else
                 WriteLine(e);
             iShouldRefresh = true;

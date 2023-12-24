@@ -1,6 +1,8 @@
+using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
 namespace DotNet8Auth.Shared.Models.Authentication.ForgotPassword;
 
-public class ForgotPasswordResponse
+public class ForgotPasswordResponse : IControllerResponse
 {
     public ForgotPasswordResponse()
     {
@@ -22,5 +24,5 @@ public class ForgotPasswordResponse
     public string? Status { get; set; }
     public string? Code { get; set; }
     public string? Message { get; set; }
-
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
 }
