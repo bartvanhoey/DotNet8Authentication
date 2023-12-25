@@ -12,10 +12,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class ForgotPasswordController(
-    UserManager<ApplicationUser> userManager,
+public class ForgotPasswordController(UserManager<ApplicationUser> userManager, IHostEnvironment environment,
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    IEmailSender<ApplicationUser> emailSender, IConfiguration configuration,ILogger<ForgotPasswordController> logger) : AuthControllerBase(userManager, configuration)
+    IEmailSender<ApplicationUser> emailSender, IConfiguration configuration,ILogger<ForgotPasswordController> logger) : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]

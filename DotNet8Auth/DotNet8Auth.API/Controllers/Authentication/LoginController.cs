@@ -12,11 +12,10 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [Route("api/account")]
 [ApiController]
-public class LoginController(
-    UserManager<ApplicationUser> userManager,
+public class LoginController(UserManager<ApplicationUser> userManager, IHostEnvironment environment, 
     IConfiguration configuration, ILogger<LoginController> logger)
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    : AuthControllerBase(userManager, configuration)
+    : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
@@ -27,68 +26,31 @@ public class LoginController(
     {
         try
         {
-            var result = ValidateControllerInputModel(model, logger, nameof(Login));
-            if (result.IsFailure) 
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", result.Error?.Message ?? "something went wrong"));
             
+            var validationResult = ValidateControllerInputModel(model, logger, nameof(Login));
+            if (validationResult.IsFailure) return Nok500<LoginResponse>(logger, validationResult.Error?.Message);
+                
             var user = await userManager.FindByEmailAsync(model?.Email ?? string.Empty);
-            if (user == null)
-            {
-                logger.LogError($"{nameof(Login)}: user is null");
-                return StatusCode(Status500InternalServerError,
-                    new LoginResponse("Error", "Invalid Password or Username"));
-            }
-
-            if (IsNullOrWhiteSpace(user.Email))
-            {
-                logger.LogError($"{nameof(Login)}: user email is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Email Empty"));
-            }
-
-            var isPasswordValid = await userManager.CheckPasswordAsync(user, model.Password);
-            if (!isPasswordValid)
-            {
-                logger.LogError($"{nameof(Login)}: password is invalid");
-                return StatusCode(Status500InternalServerError,
-                    new LoginResponse("Error", "Invalid Password or Username"));
-            }
-
-            var validIssuer = configuration["Jwt:ValidIssuer"];
-            if (IsNullOrEmpty(validIssuer))
-            {
-                logger.LogError($"{nameof(Login)}: issuer is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Issuer"));
-            }
-
-            var validAudience = configuration["Jwt:ValidAudience"];
-            if (IsNullOrEmpty(validAudience))
-            {
-                logger.LogError($"{nameof(Login)}: audience is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Audience"));
-            }
-
-            var securityKey = configuration["Jwt:SecurityKey"];
-            if (IsNullOrEmpty(securityKey))
-            {
-                logger.LogError($"{nameof(Login)}: security key is null");
-                return StatusCode(Status500InternalServerError, new LoginResponse("Error", "Invalid Secret"));
-            }
-
+            if (user == null) return Nok500CouldNotFindUser<LoginResponse>(logger);
+            
+            if (IsNullOrWhiteSpace(user.Email)) return Nok500EmailIsNull<LoginResponse>(logger);
+            
+            var isPasswordValid = await userManager.CheckPasswordAsync(user, model?.Password ?? throw new InvalidOperationException());
+            if (!isPasswordValid) return Nok500<LoginResponse>(logger, "Invalid password");
+            
             var refreshToken = GenerateRefreshToken();
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiry = UtcNow.AddHours(24);
 
             await userManager.UpdateAsync(user);
 
-            var jwtSecurityToken = await GenerateJwtToken(user, validIssuer, validAudience, securityKey);
+            var jwtSecurityToken = await GenerateJwtToken(user, validationResult.Value.ValidIssuer, validationResult.Value.Origin, validationResult.Value.SecurityKey);
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             return Ok(new LoginResponse(accessToken, refreshToken, jwtSecurityToken.ValidTo));
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, $"{nameof(Login)}");
-            return StatusCode(Status500InternalServerError,
-                new LoginResponse(status: "Error", message: "Login went wrong"));
+            return Nok500<LoginResponse>(logger, exception);
         }
     }
 

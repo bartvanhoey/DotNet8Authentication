@@ -1,4 +1,4 @@
-namespace DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+namespace DotNet8Auth.Shared.Models.Authentication;
 
 public class ControllerResponseError(string code, string description)
 {

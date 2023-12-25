@@ -16,7 +16,10 @@ using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
 
-public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfiguration configuration) : ControllerBase
+public class AuthControllerBase(
+    UserManager<ApplicationUser> userManager,
+    IConfiguration configuration,
+    IHostEnvironment environment) : ControllerBase
 {
     protected async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user, string jwtValidIssuer,
         string jwtValidAudience, string jwtSecurityKey)
@@ -49,14 +52,13 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         logger.LogError("{MemberName} : {ErrorMessage}", memberName, errorMessage);
-        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse controllerResponse)
-        {
-            return StatusCode(Status500InternalServerError);
-        }
+        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse response) return StatusCode(Status500InternalServerError);
 
-        controllerResponse.Status = "Error";
-        controllerResponse.Message = errorMessage;
-        return StatusCode(Status500InternalServerError, controllerResponse);
+        response.Status = "Error";
+        response.Message = errorMessage;
+        return environment.IsDevelopment()
+            ? StatusCode(Status500InternalServerError, response)
+            : StatusCode(Status500InternalServerError);
     }
     
     protected IActionResult Nok500EmailIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
@@ -68,21 +70,20 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
     protected IActionResult Nok500CouldNotFindUser<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
         => Nok500<T>(logger, "Could not find user", memberName);
     
-    
-
     protected IActionResult Nok500<T>(ILogger logger, Exception exception, string? errorMessage =null , [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
         logger.LogError(exception, memberName);
-        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse controllerResponse)
+        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse response)
             return StatusCode(Status500InternalServerError);
 
-        controllerResponse.Status = "Error";
-        controllerResponse.Message = errorMessage.IsNullOrWhiteSpace() ? "Something went wrong": errorMessage;
-        return StatusCode(Status500InternalServerError, controllerResponse);
+        response.Status = "Error";
+        response.Message = errorMessage.IsNullOrWhiteSpace() ? "Something went wrong": errorMessage;
+        
+        return environment.IsDevelopment()
+            ? StatusCode(Status500InternalServerError, response)
+            : StatusCode(Status500InternalServerError);
     }
-    
-    
 
     protected IActionResult Ok200<T>(string? message = null)
     {
@@ -93,7 +94,7 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
         return Ok(controllerResponse);
     }
 
-    protected IActionResult Nok500<T>(IEnumerable<IdentityError>? errors, ILogger logger,
+    protected IActionResult Nok500<T>(ILogger logger, IEnumerable<IdentityError>? errors, 
         [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         if (errors == null)
@@ -102,19 +103,21 @@ public class AuthControllerBase(UserManager<ApplicationUser> userManager, IConfi
             return StatusCode(Status500InternalServerError);
         }
 
-        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse controllerResponse)
+        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse response)
         {
             logger.LogError("{MemberName}", memberName);
             return StatusCode(Status500InternalServerError);
         }
 
-        controllerResponse.Status = "Error";
-        controllerResponse.Errors = errors.Select(x => new ControllerResponseError(x.Code, x.Description));
-        foreach (var error in controllerResponse.Errors)
+        response.Status = "Error";
+        response.Errors = errors.Select(x => new ControllerResponseError(x.Code, x.Description));
+        foreach (var error in response.Errors)
             logger.LogError("{MemberName} : {ErrorCode} - {ErrorDescription}", memberName, error.Code,
                 error.Description);
 
-        return StatusCode(Status500InternalServerError, controllerResponse);
+        return environment.IsDevelopment()
+            ? StatusCode(Status500InternalServerError, response)
+            : StatusCode(Status500InternalServerError);
     }
 
 

@@ -10,11 +10,10 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class ConfirmChangeEmailController(
-    UserManager<ApplicationUser> userManager,
+public class ConfirmChangeEmailController(UserManager<ApplicationUser> userManager, IHostEnvironment environment,
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
     IConfiguration configuration,
-    ILogger<ChangeEmailController> logger) : AuthControllerBase(userManager, configuration)
+    ILogger<ChangeEmailController> logger) : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
@@ -34,7 +33,7 @@ public class ConfirmChangeEmailController(
             var code = UTF8.GetString(Base64UrlDecode(model.Code));
 
             var changeEmailResult = await userManager.ChangeEmailAsync(user, model.NewEmail, code);
-            if (!changeEmailResult.Succeeded) return Nok500<ConfirmChangeEmailResponse>(changeEmailResult.Errors, logger);
+            if (!changeEmailResult.Succeeded) return Nok500<ConfirmChangeEmailResponse>(logger, changeEmailResult.Errors);
            
             var setUserNameResult = await userManager.SetUserNameAsync(user, model.NewEmail); // change user name also
             if (setUserNameResult is { Succeeded: true }) return Ok200<ConfirmChangeEmailResponse>("Email confirmed successfully");
@@ -42,7 +41,7 @@ public class ConfirmChangeEmailController(
             await userManager.ChangeEmailAsync(user, model.Email ?? throw new InvalidOperationException(),
                 code); // if user name could not be changed, set email back to old email
 
-            return Nok500<ConfirmChangeEmailResponse>(setUserNameResult.Errors, logger);
+            return Nok500<ConfirmChangeEmailResponse>(logger, setUserNameResult.Errors);
         }
         catch (Exception exception)
         {

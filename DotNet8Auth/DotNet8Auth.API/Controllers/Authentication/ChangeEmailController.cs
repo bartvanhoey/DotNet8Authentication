@@ -12,9 +12,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class ChangeEmailController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender,
+public class ChangeEmailController(UserManager<ApplicationUser> userManager, IHostEnvironment environment, IEmailSender<ApplicationUser> emailSender,
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    IConfiguration configuration, ILogger<ChangeEmailController> logger) : AuthControllerBase(userManager, configuration)
+    IConfiguration configuration, ILogger<ChangeEmailController> logger) : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
 

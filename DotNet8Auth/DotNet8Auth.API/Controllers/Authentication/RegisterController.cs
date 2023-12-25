@@ -11,9 +11,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class RegisterController(UserManager<ApplicationUser> userManager, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger)
+public class RegisterController(UserManager<ApplicationUser> userManager, IHostEnvironment environment, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger)
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    : AuthControllerBase(userManager, configuration)
+    : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [HttpPost]
@@ -33,14 +33,14 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user != null) return Nok500<RegisterResponse>(logger, $"{nameof(Register)}: user '{model.Email}' already exists");
 
-            var newUser = CreateUser();
+            var newUser = CreateApplicationUser();
             if (newUser == null) return Nok500<RegisterResponse>(logger, "New user is null");
 
             newUser.Email = model.Email;
             newUser.UserName = model.Email;
 
-            var result = await userManager.CreateAsync(newUser, model.Password);
-            if (!result.Succeeded) return Nok500<RegisterResponse>(logger, "User creation failed");
+            var createUserResult = await userManager.CreateAsync(newUser, model.Password);
+            if (!createUserResult.Succeeded) return Nok500<RegisterResponse>(logger, createUserResult.Errors);
 
             var userId = await userManager.GetUserIdAsync(newUser);
             var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
@@ -95,7 +95,7 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IEmail
     // }
 
 
-    private static ApplicationUser? CreateUser()
+    private static ApplicationUser? CreateApplicationUser()
     {
         try
         {

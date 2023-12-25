@@ -16,8 +16,9 @@ public class RegisterService(IHttpClientFactory clientFactory) : IRegisterServic
             var response = await _http.PostAsJsonAsync("api/account/register", input);
             result = await response.Content.ReadFromJsonAsync<RegisterResult>();
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            Console.WriteLine(exception.Message);
             return new AuthRegisterResult(SomethingWentWrong);
         }
 

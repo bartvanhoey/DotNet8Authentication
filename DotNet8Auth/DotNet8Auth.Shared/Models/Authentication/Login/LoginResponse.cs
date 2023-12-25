@@ -1,6 +1,8 @@
+using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
+
 namespace DotNet8Auth.Shared.Models.Authentication.Login;
 
-public class LoginResponse
+public class LoginResponse : IControllerResponse
 {
     public LoginResponse()
     {
@@ -26,5 +28,5 @@ public class LoginResponse
     public bool Successful { get; set; }
     public string? Status { get; set; }
     public string? Message { get; set; }
-
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
 }

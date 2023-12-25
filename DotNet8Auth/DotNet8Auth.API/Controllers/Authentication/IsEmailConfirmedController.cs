@@ -13,10 +13,9 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 [Route("api/account")]
 [Authorize]
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-public class IsEmailConfirmedController(
-    UserManager<ApplicationUser> userManager,
+public class IsEmailConfirmedController(UserManager<ApplicationUser> userManager, IHostEnvironment environment,
     IConfiguration configuration,
-    ILogger<UserHasPasswordController> logger) : AuthControllerBase(userManager, configuration)
+    ILogger<UserHasPasswordController> logger) : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [Authorize]

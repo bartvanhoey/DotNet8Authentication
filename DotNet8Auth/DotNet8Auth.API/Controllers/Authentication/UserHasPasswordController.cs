@@ -10,7 +10,13 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [Route("api/account")]
 [ApiController]
-public class UserHasPasswordController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ILogger<UserHasPasswordController> logger) : AuthControllerBase(userManager, configuration)
+public class UserHasPasswordController(
+    UserManager<ApplicationUser> userManager,
+    IHostEnvironment environment,
+    IConfiguration configuration,
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    ILogger<UserHasPasswordController> logger) : AuthControllerBase(userManager, configuration, environment)
+#pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
     [Authorize]
     [HttpGet]
@@ -21,7 +27,8 @@ public class UserHasPasswordController(UserManager<ApplicationUser> userManager,
         {
             var result = ValidateController(logger, nameof(GetUserHasPassword));
             if (result.IsFailure)
-                return StatusCode(Status500InternalServerError, new UserHasPasswordResponse("Error", result.Error?.Message ?? "something went wrong"));
+                return StatusCode(Status500InternalServerError,
+                    new UserHasPasswordResponse("Error", result.Error?.Message ?? "something went wrong"));
 
             var email = HttpContext.User.Identity?.Name;
             if (email.IsNullOrWhiteSpace())
@@ -45,9 +52,8 @@ public class UserHasPasswordController(UserManager<ApplicationUser> userManager,
         catch (Exception exception)
         {
             logger.LogError(exception, nameof(GetUserHasPassword));
-            return StatusCode(Status500InternalServerError, new UserHasPasswordResponse("Error", "An exception occurred"));
+            return StatusCode(Status500InternalServerError,
+                new UserHasPasswordResponse("Error", "An exception occurred"));
         }
     }
-
-
 }
