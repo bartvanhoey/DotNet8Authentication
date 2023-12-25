@@ -1,11 +1,28 @@
 namespace DotNet8Auth.Shared.Models.Authentication.Profile;
 
-public class ProfileResponse(string? status, string? userName, string? phoneNumber)
+public class ProfileResponse : IControllerResponse
 {
-    public ProfileResponse(string? status, string? message) : this(status, null, null) => Message = message;
+    public ProfileResponse()
+    {
+        
+    }
 
-    public string? Status { get; set; } = status;
+    public ProfileResponse(string? status, string? message)
+    {
+        Status = status;
+        Message = message;
+    }
+
+    public ProfileResponse(string? status, string? userName, string? phoneNumber)
+    {
+        Status = status;
+        UserName = userName;
+        PhoneNumber = phoneNumber;
+    }
+    
+    public string? Status { get; set; } 
     public string? Message { get; set; }
-    public string? UserName { get; set; } = userName;
-    public string? PhoneNumber { get; set; } = phoneNumber;
+    public IEnumerable<ControllerResponseError>? Errors { get; set; }
+    public string? UserName { get; set; }
+    public string? PhoneNumber { get; set; }
 }

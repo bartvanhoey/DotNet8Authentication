@@ -1,6 +1,4 @@
-using DotNet8Auth.Shared.Models.Authentication.ChangePassword;
-
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;
+namespace DotNet8Auth.Shared.Models.Authentication.ChangePassword;
 
 public class ChangePasswordResult
 {

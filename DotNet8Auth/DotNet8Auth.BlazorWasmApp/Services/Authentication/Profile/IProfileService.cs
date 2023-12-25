@@ -1,4 +1,5 @@
-﻿using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
+﻿using DotNet8Auth.Shared.Models.Authentication.Profile;
+using DotNet8Auth.Shared.Models.Authentication.SetPhoneNumber;
 
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Profile;
 

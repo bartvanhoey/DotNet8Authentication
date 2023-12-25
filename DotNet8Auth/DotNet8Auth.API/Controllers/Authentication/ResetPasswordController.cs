@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Text;
+using DotNet8Auth.API.Controllers.Authentication.Base;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Login;
 using DotNet8Auth.Shared.Models.Authentication.ResetPassword;

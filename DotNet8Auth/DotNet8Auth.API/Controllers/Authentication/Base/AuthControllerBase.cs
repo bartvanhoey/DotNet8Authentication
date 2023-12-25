@@ -6,7 +6,6 @@ using DotNet8Auth.Shared.Extensions;
 using DotNet8Auth.Shared.Functional;
 using DotNet8Auth.Shared.Functional.Errors;
 using DotNet8Auth.Shared.Models.Authentication;
-using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
 using DotNet8Auth.Shared.Models.Authentication.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using static DotNet8Auth.Shared.Functional.Result;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
-namespace DotNet8Auth.API.Controllers.Authentication;
+namespace DotNet8Auth.API.Controllers.Authentication.Base;
 
 public class AuthControllerBase(
     UserManager<ApplicationUser> userManager,

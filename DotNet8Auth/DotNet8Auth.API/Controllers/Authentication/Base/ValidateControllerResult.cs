@@ -1,4 +1,4 @@
-namespace DotNet8Auth.API.Controllers.Authentication;
+namespace DotNet8Auth.API.Controllers.Authentication.Base;
 
 public class ValidateControllerResult(
     string securityKey,

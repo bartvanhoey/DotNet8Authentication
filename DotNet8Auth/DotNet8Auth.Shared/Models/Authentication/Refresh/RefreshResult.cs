@@ -1,6 +1,6 @@
-﻿namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Refresh;
+﻿namespace DotNet8Auth.Shared.Models.Authentication.Refresh;
 
-public class RefreshResult
+public class RefreshResult : IResponseContentResult
 {
     public string? AccessToken { get; set; }
     public string? RefreshToken { get; set; }
@@ -10,6 +10,5 @@ public class RefreshResult
     public string? Message { get; set; 
     }
 
-
-    
+    public IEnumerable<HttpResultError>? Errors { get; set; }
 }

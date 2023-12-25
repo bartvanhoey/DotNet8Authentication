@@ -1,3 +1,4 @@
+using DotNet8Auth.API.Controllers.Authentication.Base;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
 using DotNet8Auth.Shared.Models.Authentication.Register;

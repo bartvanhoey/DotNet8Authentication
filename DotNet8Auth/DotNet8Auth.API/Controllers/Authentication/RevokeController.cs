@@ -1,4 +1,5 @@
-﻿using DotNet8Auth.Shared.Models.Authentication;
+﻿using DotNet8Auth.API.Controllers.Authentication.Base;
+using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

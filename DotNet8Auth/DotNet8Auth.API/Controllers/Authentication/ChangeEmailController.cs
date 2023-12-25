@@ -3,6 +3,7 @@ using DotNet8Auth.Shared.Models.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Encodings.Web;
+using DotNet8Auth.API.Controllers.Authentication.Base;
 using DotNet8Auth.Shared.Models.Authentication.ChangeEmail;
 using Microsoft.AspNetCore.Authorization;
 using static System.Text.Encoding;

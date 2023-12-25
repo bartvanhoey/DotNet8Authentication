@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using DotNet8Auth.BlazorWasmApp.Services.Logging;
+using DotNet8Auth.Shared.Models.Authentication.ChangePassword;
 using static DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword.AuthUserHasPasswordMessage;
 
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ChangePassword;

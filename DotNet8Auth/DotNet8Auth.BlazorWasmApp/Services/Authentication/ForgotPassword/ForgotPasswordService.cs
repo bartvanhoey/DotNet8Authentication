@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Register;
 using DotNet8Auth.Shared.Models.Authentication.ForgotPassword;
+using DotNet8Auth.Shared.Models.Authentication.Register;
 using static DotNet8Auth.BlazorWasmApp.Services.Authentication.ForgotPassword.AuthForgotPasswordInfo;
 
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.ForgotPassword;
@@ -19,7 +20,6 @@ public class ForgotPasswordService(IHttpClientFactory clientFactory) : IForgotPa
         }
         catch (Exception)
         {
-            // TODO logging
             return new AuthForgotPasswordResult(SomethingWentWrong);
         }
 

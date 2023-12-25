@@ -1,6 +1,6 @@
-namespace DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
+namespace DotNet8Auth.Shared.Models.Authentication.ResetPassword;
 
-public class ConfirmEmailResult : IResponseContentResult
+public class ResetPasswordResult : IResponseContentResult
 {
     public string? Status { get; set; }
     public string? Message { get; set; }

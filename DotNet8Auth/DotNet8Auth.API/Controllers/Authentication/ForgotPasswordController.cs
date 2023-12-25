@@ -1,4 +1,5 @@
-﻿using DotNet8Auth.Shared.Extensions;
+﻿using DotNet8Auth.API.Controllers.Authentication.Base;
+using DotNet8Auth.Shared.Extensions;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.ForgotPassword;
 using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;

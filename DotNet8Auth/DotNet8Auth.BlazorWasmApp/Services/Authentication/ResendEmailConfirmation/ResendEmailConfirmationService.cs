@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using DotNet8Auth.BlazorWasmApp.Services.Authentication.ConfirmEmail;
 using DotNet8Auth.Shared.Models.Authentication.ConfirmEmail;
 using DotNet8Auth.Shared.Models.Authentication.ResendEmailConfirmation;
 using static DotNet8Auth.BlazorWasmApp.Services.Authentication.ResendEmailConfirmation.AuthResendConfirmEmailConfirmationInfo;

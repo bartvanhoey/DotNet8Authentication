@@ -1,10 +1,10 @@
-﻿using DotNet8Auth.Shared.Extensions;
+﻿using DotNet8Auth.API.Controllers.Authentication.Base;
+using DotNet8Auth.Shared.Extensions;
 using DotNet8Auth.Shared.Models.Authentication;
 using DotNet8Auth.Shared.Models.Authentication.Profile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace DotNet8Auth.API.Controllers.Authentication;
 
@@ -25,34 +25,22 @@ public class ProfileController(UserManager<ApplicationUser> userManager, IHostEn
         try
         {
             var result = ValidateController(logger, nameof(GetProfile));
-            if (result.IsFailure)
-                return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", result.Error?.Message ?? "something went wrong"));
+            if (result.IsFailure) return Nok500<ProfileResponse>(logger, result.Error?.Message);
 
             var email = HttpContext.User.Identity?.Name;
-            if (email.IsNullOrWhiteSpace())
-            {
-                logger.LogError($"{nameof(GetProfile)}: Email was null");
-                return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", "Email was null"));
-            }
+            if (email.IsNullOrWhiteSpace()) return Nok500EmailIsNull<ProfileResponse>(logger);
 
-            var user = email == null ? null : await userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                logger.LogError($"{nameof(GetProfile)}: User retrieval went wrong");
-                return StatusCode(Status500InternalServerError,
-                    new ProfileResponse("Error", "User retrieval went wrong"));
-            }
+            var user = await userManager.FindByEmailAsync(email ?? throw new InvalidOperationException());
+            if (user == null) return Nok500CouldNotFindUser<ProfileResponse>(logger);
 
             var userName = await userManager.GetUserNameAsync(user);
             var phoneNumber = await userManager.GetPhoneNumberAsync(user);
-            return Ok(new ProfileResponse("Success", userName: userName, phoneNumber: phoneNumber));
+            return Ok(new ProfileResponse("Success", userName, phoneNumber));
         }
         catch (Exception exception)
         {
             logger.LogError(exception, nameof(GetProfile));
-            return StatusCode(Status500InternalServerError, new ProfileResponse("Error", "An exception occurred"));
+            return Nok500<ProfileResponse>(logger);
         }
     }
 }
