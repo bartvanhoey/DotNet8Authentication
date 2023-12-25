@@ -5,6 +5,7 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IRegisterService RegisterService
+@inject IdentityRedirectManager RedirectManager
 
 <PageTitle>Register</PageTitle>
 
@@ -59,10 +60,11 @@
     public async Task RegisterUser(EditContext editContext)
     {
         var result = await RegisterService.RegisterAsync(Input);
-        if (result.Succeeded)
+        if (result is { Succeeded: true })
         {
             Logger.LogInformation("User created a new account with password");
-            NavigationManager.NavigateTo("/Account/RegisterConfirmation", true);
+            RedirectManager.RedirectTo("Account/RegisterConfirmation",
+                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
         else
             Message = "Error: Could not register the user.";

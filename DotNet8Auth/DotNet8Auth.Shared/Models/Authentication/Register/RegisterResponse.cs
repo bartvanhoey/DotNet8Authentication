@@ -14,12 +14,13 @@ public class RegisterResponse : IControllerResponse
         Message = message;
     }
 
-    public RegisterResponse(string? status, string? message, string? code, string? userId) : this()
+    public RegisterResponse(string? status, string? code, string? userId) : this()
     {
         Status = status;
-        Message = message;
+        Message = status == "Success"? "User created successfully" : "User Not created";
         Code = code;
         UserId = userId;
+        
     }
 
     public string? Status { get; set; }

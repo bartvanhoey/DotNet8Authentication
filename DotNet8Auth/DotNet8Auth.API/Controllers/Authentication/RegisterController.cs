@@ -46,19 +46,20 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IHostE
             var userId = await userManager.GetUserIdAsync(newUser);
             var code = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
             code = Base64UrlEncode(UTF8.GetBytes(code));
-            
+
             var confirmationLink = callbackUrl.AddUrlParameters(new Dictionary<string, object?>
-                { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
+            { ["userId"] = userId, ["code"] = code, ["returnUrl"] = null });
 
             await emailSender.SendConfirmationLinkAsync(newUser, newUser.Email, confirmationLink);
-            return Ok(new RegisterResponse("Success", "User created successfully", code, userId));
+            
+            return Ok(new RegisterResponse("Success", code, userId));
         }
         catch (Exception exception)
         {
             return Nok500<RegisterResponse>(logger, exception);
         }
     }
-        
+
     // [HttpPost]
     // [Route("register-admin")]
     // public async Task<IActionResult> RegisterAdmin([FromBody] RegisterInputModel model)

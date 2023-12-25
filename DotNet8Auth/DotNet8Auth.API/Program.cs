@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 try
 {
     builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-
+    
     builder.RegisterSerilog();
     Log.Information("Starting the web host");
 
