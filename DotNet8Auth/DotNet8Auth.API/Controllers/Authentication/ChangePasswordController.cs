@@ -23,7 +23,7 @@ public class ChangePasswordController(UserManager<ApplicationUser> userManager, 
             var validationResult = ValidateControllerInputModel(model, logger, nameof(ChangePassword));
             if (validationResult.IsFailure) return Nok500<ChangePasswordResponse>(logger, validationResult.Error?.Message);
 
-            if (model.NewPassword.IsNullOrWhiteSpace() || model.OldPassword.IsNullOrWhiteSpace())
+            if (model.NewPassword.IsNullOrWhiteSpace() || model.CurrentPassword.IsNullOrWhiteSpace())
                 return Nok500<ChangePasswordResponse>(logger, "Old or New password is null or empty");
 
             var email = HttpContext.User.Identity?.Name;
@@ -32,7 +32,7 @@ public class ChangePasswordController(UserManager<ApplicationUser> userManager, 
             var user = email == null ? null : await userManager.FindByEmailAsync(email);
             if (user == null) return Nok500CouldNotFindUser<ChangePasswordResponse>(logger);
 
-            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
             return changePasswordResult.Succeeded 
                 ? Ok200<ChangePasswordResponse>() 
                 : Nok500<ChangePasswordResponse>(logger, changePasswordResult.Errors);
