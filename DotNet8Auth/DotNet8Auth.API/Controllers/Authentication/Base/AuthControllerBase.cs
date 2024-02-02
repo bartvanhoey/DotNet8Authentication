@@ -36,10 +36,11 @@ public class AuthControllerBase(
             authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
         }
 
+        var expiresInSeconds = double.TryParse(configuration["Jwt:ExpiresInSeconds"], out var jwtExpiresInSeconds) ? jwtExpiresInSeconds : 60;
         var token = new JwtSecurityToken(
             issuer: jwtValidIssuer,
             audience: jwtValidAudience,
-            expires: DateTime.UtcNow.AddSeconds(60),
+            expires: DateTime.UtcNow.AddSeconds(expiresInSeconds),
             claims: authClaims,
             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecurityKey)),
                 SecurityAlgorithms.HmacSha256)
@@ -51,7 +52,8 @@ public class AuthControllerBase(
         [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         logger.LogError("{MemberName} : {ErrorMessage}", memberName, errorMessage);
-        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse response) return StatusCode(Status500InternalServerError);
+        if (Activator.CreateInstance(typeof(T)) is not IControllerResponse response)
+            return StatusCode(Status500InternalServerError);
 
         response.Status = "Error";
         response.Message = errorMessage;
@@ -59,17 +61,21 @@ public class AuthControllerBase(
             ? StatusCode(Status500InternalServerError, response)
             : StatusCode(Status500InternalServerError);
     }
-    
-    protected IActionResult Nok500EmailIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+
+    protected IActionResult Nok500EmailIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "")
+        where T : IControllerResponse
         => Nok500<T>(logger, "Email is null", memberName);
-    
-    protected IActionResult Nok500CodeIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+
+    protected IActionResult Nok500CodeIsNull<T>(ILogger logger, [CallerMemberName] string memberName = "")
+        where T : IControllerResponse
         => Nok500<T>(logger, "Code is null", memberName);
-    
-    protected IActionResult Nok500CouldNotFindUser<T>(ILogger logger, [CallerMemberName] string memberName = "") where T : IControllerResponse 
+
+    protected IActionResult Nok500CouldNotFindUser<T>(ILogger logger, [CallerMemberName] string memberName = "")
+        where T : IControllerResponse
         => Nok500<T>(logger, "Could not find user", memberName);
-    
-    protected IActionResult Nok500<T>(ILogger logger, Exception exception, string? errorMessage =null , [CallerMemberName] string memberName = "") where T : IControllerResponse
+
+    protected IActionResult Nok500<T>(ILogger logger, Exception exception, string? errorMessage = null,
+        [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
         logger.LogError(exception, memberName);
@@ -77,8 +83,8 @@ public class AuthControllerBase(
             return StatusCode(Status500InternalServerError);
 
         response.Status = "Error";
-        response.Message = errorMessage.IsNullOrWhiteSpace() ? "Something went wrong": errorMessage;
-        
+        response.Message = errorMessage.IsNullOrWhiteSpace() ? "Something went wrong" : errorMessage;
+
         return environment.IsDevelopment()
             ? StatusCode(Status500InternalServerError, response)
             : StatusCode(Status500InternalServerError);
@@ -93,7 +99,7 @@ public class AuthControllerBase(
         return Ok(controllerResponse);
     }
 
-    protected IActionResult Nok500<T>(ILogger logger, IEnumerable<IdentityError>? errors, 
+    protected IActionResult Nok500<T>(ILogger logger, IEnumerable<IdentityError>? errors,
         [CallerMemberName] string memberName = "") where T : IControllerResponse
     {
         if (errors == null)
