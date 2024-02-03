@@ -1,8 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using Blazored.LocalStorage;
-using DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Refresh;
+using DotNet8Auth.BlazorWasmApp.Services.Authentication.Token;
 using static System.Console;
 using static System.String;
 
@@ -10,15 +9,17 @@ namespace DotNet8Auth.BlazorWasmApp.Services.Authentication;
 
 public class CustomAuthenticationHandler(
     IConfiguration configuration,
-    ILocalStorageService localStorageService,    
-    IHttpClientFactory clientFactory, ILogoutService logoutService
+    IJwtTokenService jwtTokenService,
+    IHttpClientFactory clientFactory
 )
     : DelegatingHandler //AuthorizationMessageHandler   
 {
     private bool _refreshing;
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
-        var accessToken = await localStorageService.GetItemAsync<string>("accessToken", cancellationToken);
+        var accessToken = await jwtTokenService.GetAccessTokenAsync(cancellationToken);
         var isToServer = request.RequestUri?.AbsoluteUri.StartsWith(configuration["ServerUrl"] ?? "") ?? false;
 
         if (isToServer && !IsNullOrEmpty(accessToken))
@@ -41,22 +42,21 @@ public class CustomAuthenticationHandler(
             iShouldRefresh = true;
         }
 
-        if (_refreshing || IsNullOrEmpty(accessToken) || !iShouldRefresh) return response;
+        if (_refreshing || IsNullOrEmpty(accessToken) || !iShouldRefresh) return response!;
 
         try
         {
             _refreshing = true;
-            var refreshService = new RefreshService(clientFactory, localStorageService, logoutService);
+            var refreshService = new RefreshService(clientFactory, jwtTokenService);
             var refreshResult = await refreshService.RefreshAsync();
-            if (!refreshResult.Succeeded) return response;
-                
-            accessToken = await localStorageService.GetItemAsync<string>("accessToken", cancellationToken);
-            
-            if (isToServer && !IsNullOrEmpty(accessToken))
+            if (!refreshResult.Succeeded) return response!;
+
+            accessToken = await jwtTokenService.GetAccessTokenAsync(cancellationToken);
+
+            if (jwtTokenService.IsAccessTokenValid(accessToken) && isToServer)
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             return await base.SendAsync(request, cancellationToken);
-
         }
         finally
         {

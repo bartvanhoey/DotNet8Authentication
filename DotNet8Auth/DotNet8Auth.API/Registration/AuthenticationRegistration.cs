@@ -38,7 +38,6 @@ public static class AuthenticationRegistration
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
-                // ValidAudience = validAudience,
                 ValidAudiences = validAudiences,
                 ValidIssuer = validIssuer,
                 IssuerSigningKey = new SymmetricSecurityKey(UTF8.GetBytes(securityKey)),
@@ -57,8 +56,8 @@ public static class AuthenticationRegistration
         var authorizationHeader = headers.Authorization.FirstOrDefault();
         if (authorizationHeader is null)
         {
-            Out.WriteLine($"{eventType}. JWT not present");
-            logger.Information($"{eventType}. JWT not present");
+            Out.WriteLine($"{eventType}. AccessToken not present");
+            logger.Information($"{eventType}. AccessToken not present");
         }
         else
         {

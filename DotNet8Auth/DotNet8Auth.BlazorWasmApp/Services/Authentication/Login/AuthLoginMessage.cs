@@ -8,4 +8,5 @@ public enum AuthLoginMessage {
     RefreshTokenNull = 3,
     ContentIsNull = 4,
     SomethingWentWrong = 5,
+    AccessTokenInvalid =6
 }

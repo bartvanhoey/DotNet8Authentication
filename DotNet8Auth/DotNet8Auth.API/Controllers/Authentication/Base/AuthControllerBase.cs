@@ -36,11 +36,11 @@ public class AuthControllerBase(
             authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
         }
 
-        var expiresInSeconds = double.TryParse(configuration["Jwt:ExpiresInSeconds"], out var jwtExpiresInSeconds) ? jwtExpiresInSeconds : 60;
+        var expirationInSeconds = double.TryParse(configuration["Jwt:ExpirationInSeconds"], out var jwtExpirationInSeconds) ? jwtExpirationInSeconds : 60;
         var token = new JwtSecurityToken(
             issuer: jwtValidIssuer,
             audience: jwtValidAudience,
-            expires: DateTime.UtcNow.AddSeconds(expiresInSeconds),
+            expires: DateTime.UtcNow.AddSeconds(expirationInSeconds),
             claims: authClaims,
             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecurityKey)),
                 SecurityAlgorithms.HmacSha256)

@@ -8,6 +8,7 @@ using DotNet8Auth.BlazorWasmApp.Services.Authentication.Profile;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.Register;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ResendEmailConfirmation;
 using DotNet8Auth.BlazorWasmApp.Services.Authentication.ResetPassword;
+using DotNet8Auth.BlazorWasmApp.Services.Authentication.Token;
 
 namespace DotNet8Auth.BlazorWasmApp.Services.Authentication;
 
@@ -15,6 +16,7 @@ public static class RegisterAuthenticationServices
 {
     public static void AddAuthenticationServices(this IServiceCollection services)
     {
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ILoginService, LoginService>();
         services.AddScoped<IRegisterService, RegisterService>();
         services.AddScoped<IConfirmEmailService, ConfirmEmailService>();

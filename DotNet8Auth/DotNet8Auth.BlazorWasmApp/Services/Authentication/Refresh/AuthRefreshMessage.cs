@@ -7,4 +7,5 @@ public enum AuthRefreshMessage
     ContentIsNull = 2,
     AccessTokenNull = 3,
     RefreshTokenNull = 4,
+    AccessTokenInvalid = 5,
 }
