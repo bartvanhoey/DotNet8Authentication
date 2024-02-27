@@ -11,7 +11,7 @@ try
 {
     builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
     
-    builder.RegisterSerilog();
+    builder.SetupSerilog();
     Log.Information("Starting the web host");
 
     builder.Services.AddControllers();
