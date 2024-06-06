@@ -12,7 +12,8 @@ namespace DotNet8Auth.API.Controllers.Authentication;
 
 [ApiController]
 [Route("api/account")]
-public class RegisterController(UserManager<ApplicationUser> userManager, IHostEnvironment environment, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger)
+public class RegisterController(UserManager<ApplicationUser> userManager, IHostEnvironment environment, IEmailSender<ApplicationUser> emailSender, IConfiguration configuration, ILogger<RegisterController> logger, 
+    RoleManager<IdentityRole> roleManager)
 #pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
     : AuthControllerBase(userManager, configuration, environment)
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
@@ -60,41 +61,41 @@ public class RegisterController(UserManager<ApplicationUser> userManager, IHostE
         }
     }
 
-    // [HttpPost]
-    // [Route("register-admin")]
-    // public async Task<IActionResult> RegisterAdmin([FromBody] RegisterInputModel model)
-    // {
-    //     var userExists = await userManager.FindByNameAsync(model.Email);
-    //     if (userExists != null)
-    //         return StatusCode(Status500InternalServerError,
-    //             new LoginResponse { Status = "Error", Message = "User already exists" });
-    //
-    //     ApplicationUser user = new ApplicationUser()
-    //     {
-    //         Email = model.Email,
-    //         SecurityStamp = NewGuid().ToString(),
-    //         UserName = model.Email
-    //     };
-    //     var result = await userManager.CreateAsync(user, model.Password);
-    //     if (!result.Succeeded)
-    //         return StatusCode(Status500InternalServerError,
-    //             new LoginResponse
-    //             {
-    //                 Status = "Error", Message = "User creation failed! Please check user details and try again."
-    //             });
-    //
-    //     if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-    //         await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-    //     if (!await roleManager.RoleExistsAsync(UserRoles.User))
-    //         await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-    //
-    //     if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-    //     {
-    //         await userManager.AddToRoleAsync(user, UserRoles.Admin);
-    //     }
-    //
-    //     return Ok(new LoginResponse { Status = "Success", Message = "User created successfully" });
-    // }
+    [HttpPost]
+    [Route("register-admin")]
+    public async Task<IActionResult> RegisterAdmin([FromBody] RegisterInputModel model)
+    {
+        var userExists = await userManager.FindByNameAsync(model.Email);
+        if (userExists != null)
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new RegisterResponse() { Status = "Error", Message = "User already exists" });
+    
+        ApplicationUser user = new ApplicationUser()
+        {
+            Email = model.Email,
+            SecurityStamp =Guid.NewGuid().ToString(),
+            UserName = model.Email
+        };
+        var result = await userManager.CreateAsync(user, model.Password);
+        if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new RegisterResponse
+                {
+                    Status = "Error", Message = "User creation failed! Please check user details and try again."
+                });
+
+        if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+             await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+        if (!await roleManager.RoleExistsAsync(UserRoles.User))
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+    
+        if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+        {
+            await userManager.AddToRoleAsync(user, UserRoles.Admin);
+        }
+    
+        return Ok(new RegisterResponse { Status = "Success", Message = "User created successfully" });
+    }
 
 
     private static ApplicationUser? CreateApplicationUser()
