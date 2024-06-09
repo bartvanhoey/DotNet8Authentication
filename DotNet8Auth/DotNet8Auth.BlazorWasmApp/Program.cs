@@ -10,9 +10,6 @@ using Microsoft.AspNetCore.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-
-
-
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -23,7 +20,6 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-
 
 builder.Services.AddBlazoredLocalStorage();
 

@@ -27,7 +27,6 @@ public class LoginController(UserManager<ApplicationUser> userManager, IHostEnvi
     {
         try
         {
-            
             var validationResult = ValidateControllerInputModel(model, logger, nameof(Login));
             if (validationResult.IsFailure) return Nok500<LoginResponse>(logger, validationResult.Error?.Message);
                 

@@ -3,37 +3,45 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
-using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.IdentityModel.Tokens;
 using static DotNet8Auth.Shared.Consts.ApplicationConsts;
 
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Token;
+namespace Dotnet8Auth.BlazorServerApp.Services.Authentication.Token;
 
-public class JwtTokenService(ILocalStorageService localStorage, IConfiguration configuration) : IJwtTokenService
+public class JwtTokenService(ProtectedLocalStorage localStorage, IConfiguration configuration) : IJwtTokenService
 {
-    
+    // private const string AccessToken = nameof(AccessToken);
+    // private const string RefreshToken = nameof(RefreshToken);
 
     public async Task SaveAccessTokenAsync(string accessToken) 
-        => await localStorage.SetItemAsync(AccessToken, accessToken);
+        => await localStorage.SetAsync(AccessToken, accessToken);
     
     public async Task RemoveAccessToken(string accessToken) 
-        => await localStorage.SetItemAsync(AccessToken, accessToken);
+        => await localStorage.SetAsync(AccessToken, accessToken);
 
     public async Task<string?> GetAccessTokenAsync(CancellationToken cancellationToken = default)
-        => await localStorage.GetItemAsync<string>(AccessToken, cancellationToken);
+    {
+        var result = await localStorage.GetAsync<string>(AccessToken);
+        return result.Success ? result.Value : null;
+    }
 
     public async Task RemoveAccessTokenAsync() 
-        => await localStorage.RemoveItemAsync(AccessToken);
+        => await localStorage.DeleteAsync(AccessToken);
 
     public async Task SaveRefreshTokenAsync(string refreshToken)
-        => await localStorage.SetItemAsync(RefreshToken, refreshToken);
+        => await localStorage.SetAsync(RefreshToken, refreshToken);
 
     public async Task<string?> GetRefreshTokenAsync(CancellationToken cancellationToken = default)
-        => await localStorage.GetItemAsync<string>(RefreshToken, cancellationToken);
+    {
+        var result = await localStorage.GetAsync<string?>(RefreshToken);
+        return result.Success ? result.Value : null;
+    }
 
     public async Task RemoveRefreshTokenAsync() 
-        => await localStorage.RemoveItemAsync(RefreshToken);
+        => await localStorage.DeleteAsync(RefreshToken);
 
+    
     public  bool IsAccessTokenValid(string? accessToken)
     {
         if (string.IsNullOrWhiteSpace(accessToken)) return false;
@@ -55,6 +63,8 @@ public class JwtTokenService(ILocalStorageService localStorage, IConfiguration c
         }
         return true;
     }
+
+    public bool IsAccessTokenInValid(string? accessToken) => !IsAccessTokenValid(accessToken);
 
     public IEnumerable<Claim> GetClaims(string accessToken)
     {

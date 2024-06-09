@@ -1,11 +1,9 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-namespace DotNet8Auth.BlazorWasmApp.Services.Authentication.Logout;
+namespace Dotnet8Auth.BlazorServerApp.Services.Authentication.Logout;
 
-
-public class LogoutService(IHttpClientFactory clientFactory, ILocalStorageService localStorage, AuthenticationStateProvider authenticationStateProvider)
+public class LogoutService(IHttpClientFactory clientFactory, ProtectedLocalStorage localStorage, AuthenticationStateProvider authenticationStateProvider)
     : ILogoutService
 {
     public async Task LogoutAsync()
@@ -19,8 +17,8 @@ public class LogoutService(IHttpClientFactory clientFactory, ILocalStorageServic
         {
             // TODO logging here
         }
-        await localStorage.RemoveItemAsync("accessToken");
-        await localStorage.RemoveItemAsync("refreshToken");
+        await localStorage.DeleteAsync("accessToken");
+        await localStorage.DeleteAsync("refreshToken");
         await authenticationStateProvider.GetAuthenticationStateAsync();
     }
 }

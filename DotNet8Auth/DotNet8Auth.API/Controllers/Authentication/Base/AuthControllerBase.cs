@@ -166,7 +166,20 @@ public class AuthControllerBase(
             return Fail<ValidateOriginResult>(new ResultError("audience is null"));
         }
 
+        var validIssuer = configuration["Jwt:ValidIssuer"];
+        
+        
+        var host = HttpContext.Request.Headers.Host.ToString();
+        if (host.IsNullOrWhiteSpace()) return Fail<ValidateOriginResult>(new ResultError("host is null or white space"));
+        
+        if (validIssuer != null && validIssuer.Contains(host) && HttpContext.Request.Headers.Count <=4 )
+        {
+            var blazorServerLocalhostAddress = configuration["Jwt:BlazorServerLocalhostAddress"];
+            return Result.Ok(new ValidateOriginResult(blazorServerLocalhostAddress ?? throw new InvalidOperationException()));
+        }
+
         var origin = HttpContext.Request.Headers.Origin.FirstOrDefault();
+        
         if (origin.IsNotNullOrWhiteSpace() && validAudiences.Contains(origin ?? throw new InvalidOperationException()))
             return Result.Ok(new ValidateOriginResult(origin: origin));
 

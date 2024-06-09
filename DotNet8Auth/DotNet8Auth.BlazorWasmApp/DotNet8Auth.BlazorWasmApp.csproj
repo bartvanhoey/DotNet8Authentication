@@ -24,4 +24,10 @@
     <Folder Include="Components\Account\Manage\ChangePassword\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Components.Server">
+      <HintPath>..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.6\Microsoft.AspNetCore.Components.Server.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
