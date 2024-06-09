@@ -1,0 +1,66 @@
+﻿@using System.Security.Claims
+@using System.Security.Cryptography
+@using Dotnet8Auth.BlazorServerApp.Services.Authentication
+@using DotNet8Auth.Shared.Consts
+@using Microsoft.AspNetCore.Authentication.JwtBearer
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+@* *@
+@* @inject AuthenticationStateProvider AuthStateProvider *@
+@* @inject IJSRuntime JsRuntime *@
+@* @inject ProtectedLocalStorage LocalStorage; *@
+@* @inject IConfiguration Configuration ; *@
+@* *@
+@* @code { *@
+@* *@
+@*     // private const string AccessToken = nameof(AccessToken); *@
+@*     // private const string RefreshToken = nameof(RefreshToken); *@
+@* *@
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         if (firstRender) *@
+@*         { *@
+@* *@
+@* *@
+@*             var emptyResult = new List<Claim>(); *@
+@*             ProtectedBrowserStorageResult<string> accessToken; *@
+@*             ProtectedBrowserStorageResult<string> refreshToken; *@
+@*             try *@
+@*             { *@
+@*                 accessToken = await LocalStorage.GetAsync<string>(ApplicationConsts.AccessToken); *@
+@*                 refreshToken = await LocalStorage.GetAsync<string>(ApplicationConsts.RefreshToken); *@
+@*             } *@
+@*             catch (CryptographicException) *@
+@*             { *@
+@*                 return; *@
+@*             } *@
+@* *@
+@*             if (accessToken.Success is false || accessToken.Value == default) *@
+@*                 return; *@
+@* *@
+@*             var claims = JwtTokenHelper.ValidateDecodeToken(accessToken.Value, Configuration); *@
+@* *@
+@*             if (claims.Count != 0) return; *@
+@* *@
+@*             var claimsIdentity = claims.Count != 0 *@
+@*                 ? new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme, "name", "role") *@
+@*                 : new ClaimsIdentity(); *@
+@* *@
+@*             ((CustomAuthenticationStateProvider)AuthStateProvider).SetAuthenticationState(new ClaimsPrincipal(claimsIdentity)); *@
+@*         } *@
+@*     } *@
+@* *@
+@* } *@
